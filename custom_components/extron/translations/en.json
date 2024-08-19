@@ -12,8 +12,9 @@
             "user": {
                 "data": {
                     "host": "Host",
+                    "port": "Port",
                     "password": "Password",
-                    "username": "Username"
+                    "device_type": "Device type"
                 }
             }
         }
