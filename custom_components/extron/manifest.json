@@ -1,0 +1,15 @@
+{
+  "domain": "extron",
+  "name": "Extron",
+  "codeowners": [
+    "@Jalle19"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://www.home-assistant.io/integrations/extron",
+  "homekit": {},
+  "iot_class": "local_polling",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": []
+}
