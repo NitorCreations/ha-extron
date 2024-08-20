@@ -6,7 +6,8 @@ from homeassistant.helpers.device_registry import format_mac
 from homeassistant.helpers.entity import DeviceInfo
 
 from custom_components.extron.const import CONF_DEVICE_TYPE, DOMAIN
-from custom_components.extron.extron import DeviceType, SurroundSoundProcessor, HDMISwitcher, DeviceInformation
+from custom_components.extron.extron import DeviceType, SurroundSoundProcessor, HDMISwitcher, DeviceInformation, \
+    ExtronDevice
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,33 +40,22 @@ async def async_setup_entry(hass, entry, async_add_entities):
         _LOGGER.info('configuring NOTHING')
 
 
-class ExtronSurroundSoundProcessor(MediaPlayerEntity):
-    def __init__(self, ssp: SurroundSoundProcessor, device_information: DeviceInformation):
-        self._ssp = ssp
+class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
+    def __init__(self, device: ExtronDevice, device_information: DeviceInformation) -> None:
+        self._device = device
         self._device_information = device_information
-
-        self._state = MediaPlayerState.PLAYING
-        self._source = None
-        self._source_list = ['1', '2', '3', '4', '5']
         self._device_class = "receiver"
-        self._volume = None
-        self._muted = False
 
-        _LOGGER.info('Device unique_id is %s', self.unique_id)
-
-    _attr_supported_features = (
-            MediaPlayerEntityFeature.SELECT_SOURCE
-            | MediaPlayerEntityFeature.VOLUME_MUTE
-            | MediaPlayerEntityFeature.VOLUME_SET
-            | MediaPlayerEntityFeature.VOLUME_STEP
-    )
+    @property
+    def device_class(self):
+        return self._device_class
 
     @property
     def unique_id(self) -> str | None:
-        device_type = DeviceType.SURROUND_SOUND_PROCESSOR.value
+        device_type = self._device.get_device_type()
         mac_address = format_mac(self._device_information.mac_address)
 
-        return f'extron_{device_type}_{mac_address}'
+        return f'extron_{device_type.value}_{mac_address}'
 
     @property
     def device_info(self) -> DeviceInfo | None:
@@ -81,6 +71,25 @@ class ExtronSurroundSoundProcessor(MediaPlayerEntity):
     @property
     def name(self):
         return f'Extron {self._device_information.model_name}'
+
+
+class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
+    def __init__(self, ssp: SurroundSoundProcessor, device_information: DeviceInformation):
+        super().__init__(ssp, device_information)
+        self._ssp = ssp
+
+        self._state = MediaPlayerState.PLAYING
+        self._source = None
+        self._source_list = ['1', '2', '3', '4', '5']
+        self._volume = None
+        self._muted = False
+
+    _attr_supported_features = (
+            MediaPlayerEntityFeature.SELECT_SOURCE
+            | MediaPlayerEntityFeature.VOLUME_MUTE
+            | MediaPlayerEntityFeature.VOLUME_SET
+            | MediaPlayerEntityFeature.VOLUME_STEP
+    )
 
     @property
     def volume(self):
@@ -107,10 +116,6 @@ class ExtronSurroundSoundProcessor(MediaPlayerEntity):
         return self._source
 
     @property
-    def device_class(self):
-        return self._device_class
-
-    @property
     def source_list(self):
         return self._source_list
 
@@ -135,7 +140,38 @@ class ExtronSurroundSoundProcessor(MediaPlayerEntity):
         # TODO
 
 
-class ExtronHDMISwitcher(MediaPlayerEntity):
+class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
     def __init__(self, hdmi_switcher: HDMISwitcher, device_information: DeviceInformation) -> None:
+        super().__init__(hdmi_switcher, device_information)
         self._hdmi_switcher = hdmi_switcher
-        self._device_information = device_information
+
+        self._state = MediaPlayerState.PLAYING
+        self._source = None
+
+    _attr_supported_features = MediaPlayerEntityFeature.SELECT_SOURCE
+
+    @property
+    def state(self):
+        return self._state
+
+    @property
+    def source(self):
+        return self._source
+
+    @property
+    def source_list(self):
+        model_name = self._device_information.model_name
+        foo = model_name.split(' ')[0]
+
+        if foo == "SW2":
+            return ['1', '2']
+        elif foo == "SW4":
+            return ['1', '2', '3', '4']
+        elif foo == "SW6":
+            return ['1', '2', '3', '4', '5', '6']
+        else:
+            return ['1', '2', '3', '4', '5', '6', '7', '8']
+
+    def async_select_source(self, source):
+        """Select input source"""
+        # TODO
