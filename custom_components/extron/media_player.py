@@ -163,13 +163,13 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
     @property
     def source_list(self):
         model_name = self._device_information.model_name
-        foo = model_name.split(' ')[0]
+        sw = model_name.split(' ')[0]
 
-        if foo == "SW2":
+        if sw == "SW2":
             return ['1', '2']
-        elif foo == "SW4":
+        elif sw == "SW4":
             return ['1', '2', '3', '4']
-        elif foo == "SW6":
+        elif sw == "SW6":
             return ['1', '2', '3', '4', '5', '6']
         else:
             return ['1', '2', '3', '4', '5', '6', '7', '8']
