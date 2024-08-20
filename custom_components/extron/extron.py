@@ -1,6 +1,7 @@
 import asyncio
 from asyncio import StreamReader, StreamWriter
 from asyncio.exceptions import TimeoutError
+from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
@@ -9,6 +10,15 @@ class DeviceType(Enum):
     SURROUND_SOUND_PROCESSOR = 'surround_sound_processor'
     HDMI_SWITCHER = 'hdmi_switcher'
     UNKNOWN = 'unknown'
+
+
+@dataclass
+class DeviceInformation:
+    model_name: str
+    model_description: str
+    firmware_version: str
+    part_number: str
+    mac_address: str
 
 
 class ExtronDevice:
@@ -62,6 +72,21 @@ class ExtronDevice:
 
     async def query_firmware_version(self):
         return await self._run_command("Q")
+
+    async def query_part_number(self):
+        return await self._run_command("N")
+
+    async def query_mac_address(self):
+        return await self._run_command("\x1B" + "CH")
+
+    async def query_device_information(self) -> DeviceInformation:
+        return DeviceInformation(
+            model_name=await self.query_model_name(),
+            model_description=await self.query_model_description(),
+            firmware_version=await self.query_firmware_version(),
+            part_number=await self.query_part_number(),
+            mac_address=await self.query_mac_address(),
+        )
 
 
 class SurroundSoundProcessor(ExtronDevice):

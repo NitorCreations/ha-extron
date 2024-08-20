@@ -44,8 +44,6 @@ class ExtronConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         if user_input is not None:
             try:
-                _LOGGER.info(user_input)
-
                 # Try to connect to the device
                 extron_device = ExtronDevice(DeviceType.UNKNOWN, user_input['host'], user_input['port'],
                                              user_input['password'])
