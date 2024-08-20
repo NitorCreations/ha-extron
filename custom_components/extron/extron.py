@@ -96,6 +96,29 @@ class SurroundSoundProcessor(ExtronDevice):
     async def view_input(self):
         return await self._run_command("$")
 
+    async def mute(self):
+        await self._run_command('1Z')
+
+    async def unmute(self):
+        await self._run_command('0Z')
+
+    async def is_muted(self) -> bool:
+        is_muted = await self._run_command('Z')
+        return is_muted == "1"
+
+    async def get_volume_level(self):
+        volume = await self._run_command('V')
+        return int(volume)
+
+    async def set_volume_level(self, level: int):
+        await self._run_command(f'{level}V')
+
+    async def increment_volume(self):
+        await self._run_command('+V')
+
+    async def decrement_volume(self):
+        await self._run_command('-V')
+
 
 class HDMISwitcher(ExtronDevice):
     def __init__(self, host: str, port: int, password: str) -> None:

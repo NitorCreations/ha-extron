@@ -92,8 +92,14 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
     )
 
     @property
-    def volume(self):
-        return self._volume
+    def state(self):
+        return self._state
+
+    async def async_update(self):
+        self._source = await self._ssp.view_input()
+        self._muted = await self._ssp.is_muted()
+        volume = await self._ssp.get_volume_level()
+        self._volume = volume / 100
 
     @property
     def volume_level(self):
@@ -101,15 +107,11 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
 
     @property
     def volume_step(self):
-        return 0.05
+        return 0.01
 
     @property
     def is_volume_muted(self):
         return self._muted
-
-    @property
-    def state(self):
-        return self._state
 
     @property
     def source(self):
@@ -122,22 +124,19 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
     def async_select_source(self, source):
         """Select input source"""
         # TODO
+        _LOGGER.info(f'Switching to source {source}')
 
     async def async_mute_volume(self, mute: bool) -> None:
-        """Mute volume"""
-        # TODO
+        await self._ssp.mute() if mute else await self._ssp.unmute()
 
     async def async_set_volume_level(self, volume: float) -> None:
-        """Set volume level"""
-        # TODO
+        await self._ssp.set_volume_level(int(volume * 100))
 
     async def async_volume_up(self) -> None:
-        """Increase volume"""
-        # TODO
+        await self._ssp.increment_volume()
 
     async def async_volume_down(self) -> None:
-        """Decrease"""
-        # TODO
+        await self._ssp.decrement_volume()
 
 
 class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
@@ -153,6 +152,9 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
     @property
     def state(self):
         return self._state
+
+    async def async_update(self):
+        self._source = await self._hdmi_switcher.view_input()
 
     @property
     def source(self):
@@ -175,3 +177,4 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
     def async_select_source(self, source):
         """Select input source"""
         # TODO
+        _LOGGER.info(f'Switching to source {source}')
