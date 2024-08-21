@@ -11,7 +11,7 @@ from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.helpers.selector import selector
 
 from .const import DOMAIN, CONF_HOST, CONF_PORT, CONF_PASSWORD, CONF_DEVICE_TYPE
-from .extron import DeviceType, ExtronDevice
+from .extron import DeviceType, ExtronDevice, AuthenticationFailed
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -53,13 +53,10 @@ class ExtronConfigFlow(ConfigFlow, domain=DOMAIN):
                 # Make a title for the entry
                 model_name = await extron_device.query_model_name()
                 title = f"Extron {model_name}"
-            except RuntimeError:
+            except AuthenticationFailed:
                 errors["base"] = "invalid_auth"
-            except OSError:
-                errors["base"] = "cannot_connect"
             except Exception:
-                _LOGGER.exception("Unexpected exception")
-                errors["base"] = "unknown"
+                errors["base"] = "cannot_connect"
             else:
                 return self.async_create_entry(title=title, data=user_input)
 

@@ -21,6 +21,10 @@ class DeviceInformation:
     mac_address: str
 
 
+class AuthenticationFailed(Exception):
+    pass
+
+
 class ExtronDevice:
     def __init__(self, device_type: DeviceType, host: str, port: int, password: str) -> None:
         self._device_type = device_type
@@ -52,7 +56,7 @@ class ExtronDevice:
         try:
             await asyncio.wait_for(self.attempt_login(), timeout=3)
         except TimeoutError:
-            raise RuntimeError('Authentication failed')
+            raise AuthenticationFailed()
 
     def get_device_type(self):
         return self._device_type
