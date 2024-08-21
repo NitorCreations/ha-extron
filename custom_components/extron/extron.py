@@ -1,9 +1,12 @@
 import asyncio
+import logging
 from asyncio import StreamReader, StreamWriter
 from asyncio.exceptions import TimeoutError
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
 class DeviceType(Enum):
@@ -33,6 +36,7 @@ class ExtronDevice:
         self._password = password
         self._reader: Optional[StreamReader] = None
         self._writer: Optional[StreamWriter] = None
+        self._connected = False
 
     async def _read_until(self, phrase: str) -> str | None:
         b = bytearray()
@@ -54,7 +58,9 @@ class ExtronDevice:
         self._reader, self._writer = await asyncio.open_connection(self._host, self._port)
 
         try:
-            await asyncio.wait_for(self.attempt_login(), timeout=3)
+            await asyncio.wait_for(self.attempt_login(), timeout=5)
+            self._connected = True
+            logger.info(f'Connected and authenticated to {self._host}:{self._port}')
         except TimeoutError:
             raise AuthenticationFailed()
 
@@ -84,6 +90,12 @@ class ExtronDevice:
                     return response.strip()
             except TimeoutError:
                 raise RuntimeError('Command timed out')
+            except (ConnectionResetError, BrokenPipeError):
+                self._connected = False
+                logger.warning('Connection seems to be broken, will attempt to reconnect')
+            finally:
+                if not self._connected:
+                    await self.connect()
 
     async def query_model_name(self):
         return await self._run_command("1I")
