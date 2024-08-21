@@ -56,6 +56,10 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
         return self._state
 
     @property
+    def available(self) -> bool:
+        return self._device.is_connected()
+
+    @property
     def device_info(self) -> DeviceInfo | None:
         return DeviceInfo(
             identifiers={(DOMAIN, self.unique_id)},

@@ -69,6 +69,9 @@ class ExtronDevice:
         self._writer.close()
         await self._writer.wait_closed()
 
+    def is_connected(self) -> bool:
+        return self._connected
+
     def get_device_type(self):
         return self._device_type
 
