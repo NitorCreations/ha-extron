@@ -34,10 +34,10 @@ class ExtronDevice:
         self._reader: Optional[StreamReader] = None
         self._writer: Optional[StreamWriter] = None
 
-    async def _read_until(self, phrase: str):
+    async def _read_until(self, phrase: str) -> str | None:
         b = bytearray()
 
-        while True:
+        while not self._reader.at_eof():
             byte = await self._reader.read(1)
             b += byte
 
