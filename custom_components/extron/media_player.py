@@ -13,11 +13,6 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    _LOGGER.info('async_setup_entry')
-    _LOGGER.info(entry.data)
-    _LOGGER.info('Device type is %s', entry.data[CONF_DEVICE_TYPE])
-    _LOGGER.info(DeviceType.SURROUND_SOUND_PROCESSOR.value)
-
     if entry.data[CONF_DEVICE_TYPE] == DeviceType.SURROUND_SOUND_PROCESSOR.value:
         ssp = SurroundSoundProcessor(entry.data['host'], entry.data['port'], entry.data['password'])
         await ssp.connect()
@@ -36,8 +31,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
         _LOGGER.info(device_information)
 
         async_add_entities([ExtronHDMISwitcher(hdmi_switcher, device_information)])
-    else:
-        _LOGGER.info('configuring NOTHING')
 
 
 class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
