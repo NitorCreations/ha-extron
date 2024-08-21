@@ -66,12 +66,24 @@ class ExtronDevice:
     def get_device_type(self):
         return self._device_type
 
-    async def _run_command(self, command: str):
-        async with asyncio.Semaphore():
-            self._writer.write(f"{command}\n".encode())
-            await self._writer.drain()
+    async def _run_command_internal(self, command: str):
+        self._writer.write(f"{command}\n".encode())
+        await self._writer.drain()
 
-            return (await self._read_until("\r\n")).strip()
+        return await self._read_until("\r\n")
+
+    async def _run_command(self, command: str):
+        # Serialize all access to the telnet connection
+        async with asyncio.Semaphore():
+            try:
+                response = await asyncio.wait_for(self._run_command_internal(command), timeout=3)
+
+                if response is None:
+                    raise RuntimeError('Command failed')
+                else:
+                    return response.strip()
+            except TimeoutError:
+                raise RuntimeError('Command timed out')
 
     async def query_model_name(self):
         return await self._run_command("1I")
