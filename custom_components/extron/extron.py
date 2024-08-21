@@ -58,6 +58,11 @@ class ExtronDevice:
         except TimeoutError:
             raise AuthenticationFailed()
 
+    async def disconnect(self):
+        self._connected = False
+        self._writer.close()
+        await self._writer.wait_closed()
+
     def get_device_type(self):
         return self._device_type
 
