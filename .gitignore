@@ -1,4 +1,2 @@
 *.pyc
-# Python interpreter used varies from machine to machine, so let's not track those
-.idea/ha-extron.iml
-.idea/misc.xml
+.idea
