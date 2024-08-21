@@ -45,6 +45,7 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
         self._device = device
         self._device_information = device_information
         self._device_class = "receiver"
+        self._state = MediaPlayerState.PLAYING
 
     @property
     def device_class(self):
@@ -56,6 +57,10 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
         mac_address = format_mac(self._device_information.mac_address)
 
         return f'extron_{device_type.value}_{mac_address}'
+
+    @property
+    def state(self):
+        return self._state
 
     @property
     def device_info(self) -> DeviceInfo | None:
@@ -78,7 +83,6 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
         super().__init__(ssp, device_information)
         self._ssp = ssp
 
-        self._state = MediaPlayerState.PLAYING
         self._source = None
         self._source_list = ['1', '2', '3', '4', '5']
         self._volume = None
@@ -90,10 +94,6 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
             | MediaPlayerEntityFeature.VOLUME_SET
             | MediaPlayerEntityFeature.VOLUME_STEP
     )
-
-    @property
-    def state(self):
-        return self._state
 
     async def async_update(self):
         self._source = await self._ssp.view_input()
@@ -148,10 +148,6 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
         self._source = None
 
     _attr_supported_features = MediaPlayerEntityFeature.SELECT_SOURCE
-
-    @property
-    def state(self):
-        return self._state
 
     async def async_update(self):
         self._source = await self._hdmi_switcher.view_input()
