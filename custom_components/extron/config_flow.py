@@ -47,6 +47,7 @@ class ExtronConfigFlow(ConfigFlow, domain=DOMAIN):
                 # Try to connect to the device
                 extron_device = ExtronDevice(user_input['host'], user_input['port'], user_input['password'])
                 await extron_device.connect()
+                await extron_device.disconnect()
 
                 # Make a title for the entry
                 model_name = await extron_device.query_model_name()
