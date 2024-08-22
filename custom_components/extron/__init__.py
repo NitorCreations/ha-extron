@@ -12,11 +12,6 @@ from custom_components.extron.extron import ExtronDevice, DeviceType, Authentica
 PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER]
 
 
-async def async_setup(hass, config):
-    """Set up the Extron Audio Switch component."""
-    return True
-
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Extron from a config entry."""
     # Verify we can connect
