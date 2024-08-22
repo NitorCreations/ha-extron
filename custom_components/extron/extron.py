@@ -35,6 +35,7 @@ class ExtronDevice:
         self._password = password
         self._reader: Optional[StreamReader] = None
         self._writer: Optional[StreamWriter] = None
+        self._semaphore = asyncio.Semaphore()
         self._connected = False
 
     async def _read_until(self, phrase: str) -> str | None:
@@ -48,10 +49,11 @@ class ExtronDevice:
                 return b.decode()
 
     async def attempt_login(self):
-        await self._read_until("Password:")
-        self._writer.write(f"{self._password}\r".encode())
-        await self._writer.drain()
-        await self._read_until("Login Administrator\r\n")
+        async with self._semaphore:
+            await self._read_until("Password:")
+            self._writer.write(f"{self._password}\r".encode())
+            await self._writer.drain()
+            await self._read_until("Login Administrator\r\n")
 
     async def connect(self):
         self._reader, self._writer = await asyncio.open_connection(self._host, self._port)
@@ -72,29 +74,28 @@ class ExtronDevice:
         return self._connected
 
     async def _run_command_internal(self, command: str):
-        self._writer.write(f"{command}\n".encode())
-        await self._writer.drain()
+        async with self._semaphore:
+            self._writer.write(f"{command}\n".encode())
+            await self._writer.drain()
 
-        return await self._read_until("\r\n")
+            return await self._read_until("\r\n")
 
     async def run_command(self, command: str):
-        # Serialize all access to the telnet connection
-        async with asyncio.Semaphore():
-            try:
-                response = await asyncio.wait_for(self._run_command_internal(command), timeout=3)
+        try:
+            response = await asyncio.wait_for(self._run_command_internal(command), timeout=3)
 
-                if response is None:
-                    raise RuntimeError('Command failed')
-                else:
-                    return response.strip()
-            except TimeoutError:
-                raise RuntimeError('Command timed out')
-            except (ConnectionResetError, BrokenPipeError):
-                self._connected = False
-                logger.warning('Connection seems to be broken, will attempt to reconnect')
-            finally:
-                if not self._connected:
-                    await self.connect()
+            if response is None:
+                raise RuntimeError('Command failed')
+            else:
+                return response.strip()
+        except TimeoutError:
+            raise RuntimeError('Command timed out')
+        except (ConnectionResetError, BrokenPipeError):
+            self._connected = False
+            logger.warning('Connection seems to be broken, will attempt to reconnect')
+        finally:
+            if not self._connected:
+                await self.connect()
 
     async def query_model_name(self):
         return await self.run_command("1I")
