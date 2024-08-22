@@ -102,6 +102,9 @@ class ExtronDevice:
     async def query_mac_address(self):
         return await self.run_command("\x1B" + "CH")
 
+    async def reboot(self):
+        await self.run_command("\x1B" + "1BOOT")
+
 
 class SurroundSoundProcessor:
     def __init__(self, device: ExtronDevice) -> None:

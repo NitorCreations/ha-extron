@@ -12,7 +12,7 @@ from homeassistant.helpers.device_registry import format_mac, DeviceInfo
 
 from custom_components.extron.extron import ExtronDevice, DeviceType, AuthenticationFailed
 
-PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.SENSOR, Platform.BUTTON]
 
 
 @dataclass
