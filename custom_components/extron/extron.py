@@ -116,6 +116,9 @@ class SurroundSoundProcessor:
     async def view_input(self):
         return await self._device.run_command("$")
 
+    async def select_input(self, input: int):
+        await self._device.run_command(f'{str(input)}$')
+
     async def mute(self):
         await self._device.run_command('1Z')
 
@@ -153,3 +156,6 @@ class HDMISwitcher:
 
     async def view_input(self):
         return await self._device.run_command("!")
+
+    async def select_input(self, input: int):
+        await self._device.run_command(f'{str(input)}!')

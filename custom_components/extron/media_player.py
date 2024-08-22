@@ -113,10 +113,9 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
     def source_list(self):
         return self._source_list
 
-    def async_select_source(self, source):
-        """Select input source"""
-        # TODO
-        logger.info(f'Switching to source {source}')
+    async def async_select_source(self, source):
+        await self._ssp.select_input(int(source))
+        self._source = source
 
     async def async_mute_volume(self, mute: bool) -> None:
         await self._ssp.mute() if mute else await self._ssp.unmute()
@@ -165,7 +164,6 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
         else:
             return ['1', '2', '3', '4', '5', '6', '7', '8']
 
-    def async_select_source(self, source):
-        """Select input source"""
-        # TODO
-        logger.info(f'Switching to source {source}')
+    async def async_select_source(self, source: str):
+        await self._hdmi_switcher.select_input(int(source))
+        self._source = source
