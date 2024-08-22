@@ -45,9 +45,7 @@ class ExtronConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 # Try to connect to the device
-                extron_device = ExtronDevice(DeviceType.UNKNOWN, user_input['host'], user_input['port'],
-                                             user_input['password'])
-
+                extron_device = ExtronDevice(user_input['host'], user_input['port'], user_input['password'])
                 await extron_device.connect()
 
                 # Make a title for the entry
