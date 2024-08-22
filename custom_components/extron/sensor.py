@@ -45,15 +45,8 @@ class ExtronDeviceTemperature(SensorEntity):
         return f'extron_{mac_address}_temperature'
 
     @property
-    def device_info(self) -> DeviceInfo | None:
-        return DeviceInfo(
-            identifiers={(DOMAIN, format_mac(self._device_information.mac_address))},
-            name=self.name,
-            manufacturer='Extron',
-            model=self._device_information.model_name,
-            sw_version=self._device_information.firmware_version,
-            serial_number=self._device_information.part_number,
-        )
+    def device_info(self) -> DeviceInfo:
+        return self._device_information.device_info
 
     @property
     def name(self):
