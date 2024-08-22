@@ -72,7 +72,7 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
 
     @property
     def name(self):
-        return f'Extron {self._device_information.model_name}'
+        return f'Extron {self._device_information.model_name} media player'
 
 
 class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
