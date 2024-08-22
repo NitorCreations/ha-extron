@@ -49,7 +49,7 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
         device_type = self.get_device_type()
         mac_address = format_mac(self._device_information.mac_address)
 
-        return f'extron_{device_type.value}_{mac_address}'
+        return f'extron_{device_type.value}_{mac_address}_media_player'
 
     @property
     def state(self):
@@ -62,7 +62,7 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
     @property
     def device_info(self) -> DeviceInfo | None:
         return DeviceInfo(
-            identifiers={(DOMAIN, self.unique_id)},
+            identifiers={(DOMAIN, format_mac(self._device_information.mac_address))},
             name=self.name,
             manufacturer='Extron',
             model=self._device_information.model_name,

@@ -11,7 +11,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 
 from custom_components.extron.extron import ExtronDevice, DeviceType, AuthenticationFailed, DeviceInformation
 
-PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER]
+PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.SENSOR]
 
 
 @dataclass

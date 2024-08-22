@@ -155,6 +155,10 @@ class SurroundSoundProcessor:
     async def decrement_volume(self):
         await self._device.run_command('-V')
 
+    async def get_temperature(self) -> int:
+        temperature = await self._device.run_command("\x1B" + "20STAT")
+        return int(temperature)
+
 
 class HDMISwitcher:
     def __init__(self, device: ExtronDevice) -> None:
