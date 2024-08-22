@@ -4,11 +4,11 @@ from decimal import Decimal
 
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.device_registry import DeviceInfo, format_mac
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.typing import StateType
 
-from custom_components.extron import ExtronConfigEntryRuntimeData, ExtronDevice, DeviceInformation
-from custom_components.extron.const import CONF_DEVICE_TYPE, DOMAIN
+from custom_components.extron import ExtronConfigEntryRuntimeData, DeviceInformation
+from custom_components.extron.const import CONF_DEVICE_TYPE
 from custom_components.extron.extron import SurroundSoundProcessor, DeviceType
 
 logger = logging.getLogger(__name__)
@@ -40,9 +40,7 @@ class ExtronDeviceTemperature(SensorEntity):
 
     @property
     def unique_id(self) -> str | None:
-        mac_address = format_mac(self._device_information.mac_address)
-
-        return f'extron_{mac_address}_temperature'
+        return f'extron_{self._device_information.mac_address}_temperature'
 
     @property
     def device_info(self) -> DeviceInfo:

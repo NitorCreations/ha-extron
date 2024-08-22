@@ -3,7 +3,6 @@ import logging
 from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerEntityFeature, \
     MediaPlayerState
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.device_registry import format_mac
 from homeassistant.helpers.entity import DeviceInfo
 
 from custom_components.extron import ExtronConfigEntryRuntimeData, DeviceInformation
@@ -47,7 +46,7 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
     @property
     def unique_id(self) -> str | None:
         device_type = self.get_device_type()
-        mac_address = format_mac(self._device_information.mac_address)
+        mac_address = self._device_information.mac_address
 
         return f'extron_{device_type.value}_{mac_address}_media_player'
 
