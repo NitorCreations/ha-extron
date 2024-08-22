@@ -29,8 +29,7 @@ class AuthenticationFailed(Exception):
 
 
 class ExtronDevice:
-    def __init__(self, device_type: DeviceType, host: str, port: int, password: str) -> None:
-        self._device_type = device_type
+    def __init__(self, host: str, port: int, password: str) -> None:
         self._host = host
         self._port = port
         self._password = password
@@ -72,16 +71,13 @@ class ExtronDevice:
     def is_connected(self) -> bool:
         return self._connected
 
-    def get_device_type(self):
-        return self._device_type
-
     async def _run_command_internal(self, command: str):
         self._writer.write(f"{command}\n".encode())
         await self._writer.drain()
 
         return await self._read_until("\r\n")
 
-    async def _run_command(self, command: str):
+    async def run_command(self, command: str):
         # Serialize all access to the telnet connection
         async with asyncio.Semaphore():
             try:
@@ -101,19 +97,19 @@ class ExtronDevice:
                     await self.connect()
 
     async def query_model_name(self):
-        return await self._run_command("1I")
+        return await self.run_command("1I")
 
     async def query_model_description(self):
-        return await self._run_command("2I")
+        return await self.run_command("2I")
 
     async def query_firmware_version(self):
-        return await self._run_command("Q")
+        return await self.run_command("Q")
 
     async def query_part_number(self):
-        return await self._run_command("N")
+        return await self.run_command("N")
 
     async def query_mac_address(self):
-        return await self._run_command("\x1B" + "CH")
+        return await self.run_command("\x1B" + "CH")
 
     async def query_device_information(self) -> DeviceInformation:
         return DeviceInformation(
@@ -125,40 +121,46 @@ class ExtronDevice:
         )
 
 
-class SurroundSoundProcessor(ExtronDevice):
-    def __init__(self, host: str, port: int, password: str) -> None:
-        super().__init__(DeviceType.SURROUND_SOUND_PROCESSOR, host, port, password)
+class SurroundSoundProcessor:
+    def __init__(self, device: ExtronDevice) -> None:
+        self._device = device
+
+    def get_device(self) -> ExtronDevice:
+        return self._device
 
     async def view_input(self):
-        return await self._run_command("$")
+        return await self._device.run_command("$")
 
     async def mute(self):
-        await self._run_command('1Z')
+        await self._device.run_command('1Z')
 
     async def unmute(self):
-        await self._run_command('0Z')
+        await self._device.run_command('0Z')
 
     async def is_muted(self) -> bool:
-        is_muted = await self._run_command('Z')
+        is_muted = await self._device.run_command('Z')
         return is_muted == "1"
 
     async def get_volume_level(self):
-        volume = await self._run_command('V')
+        volume = await self._device.run_command('V')
         return int(volume)
 
     async def set_volume_level(self, level: int):
-        await self._run_command(f'{level}V')
+        await self._device.run_command(f'{level}V')
 
     async def increment_volume(self):
-        await self._run_command('+V')
+        await self._device.run_command('+V')
 
     async def decrement_volume(self):
-        await self._run_command('-V')
+        await self._device.run_command('-V')
 
 
-class HDMISwitcher(ExtronDevice):
-    def __init__(self, host: str, port: int, password: str) -> None:
-        super().__init__(DeviceType.HDMI_SWITCHER, host, port, password)
+class HDMISwitcher:
+    def __init__(self, device: ExtronDevice) -> None:
+        self._device = device
+
+    def get_device(self) -> ExtronDevice:
+        return self._device
 
     async def view_input(self):
-        return await self._run_command("!")
+        return await self._device.run_command("!")

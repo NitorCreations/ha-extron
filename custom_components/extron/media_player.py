@@ -2,34 +2,31 @@ import logging
 
 from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerEntityFeature, \
     MediaPlayerState
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.device_registry import format_mac
 from homeassistant.helpers.entity import DeviceInfo
 
+from custom_components.extron import ExtronConfigEntryRuntimeData
 from custom_components.extron.const import CONF_DEVICE_TYPE, DOMAIN
 from custom_components.extron.extron import DeviceType, SurroundSoundProcessor, HDMISwitcher, DeviceInformation, \
     ExtronDevice
 
-_LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass, entry, async_add_entities):
+async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
+    # Extract stored runtime data from the entry
+    runtime_data: ExtronConfigEntryRuntimeData = entry.runtime_data
+    device = runtime_data.device
+    device_information = runtime_data.device_information
+    logger.info(device_information)
+
+    # Add entities
     if entry.data[CONF_DEVICE_TYPE] == DeviceType.SURROUND_SOUND_PROCESSOR.value:
-        ssp = SurroundSoundProcessor(entry.data['host'], entry.data['port'], entry.data['password'])
-        await ssp.connect()
-
-        # Query device information
-        device_information = await ssp.query_device_information()
-        _LOGGER.info(device_information)
-
+        ssp = SurroundSoundProcessor(device)
         async_add_entities([ExtronSurroundSoundProcessor(ssp, device_information)])
     elif entry.data[CONF_DEVICE_TYPE] == DeviceType.HDMI_SWITCHER.value:
-        hdmi_switcher = HDMISwitcher(entry.data['host'], entry.data['port'], entry.data['password'])
-        await hdmi_switcher.connect()
-
-        # Query device information
-        device_information = await hdmi_switcher.query_device_information()
-        _LOGGER.info(device_information)
-
+        hdmi_switcher = HDMISwitcher(device)
         async_add_entities([ExtronHDMISwitcher(hdmi_switcher, device_information)])
 
 
@@ -40,13 +37,16 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
         self._device_class = "receiver"
         self._state = MediaPlayerState.PLAYING
 
+    def get_device_type(self):
+        return DeviceType.UNKNOWN
+
     @property
     def device_class(self):
         return self._device_class
 
     @property
     def unique_id(self) -> str | None:
-        device_type = self._device.get_device_type()
+        device_type = self.get_device_type()
         mac_address = format_mac(self._device_information.mac_address)
 
         return f'extron_{device_type.value}_{mac_address}'
@@ -77,7 +77,7 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
 
 class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
     def __init__(self, ssp: SurroundSoundProcessor, device_information: DeviceInformation):
-        super().__init__(ssp, device_information)
+        super().__init__(ssp.get_device(), device_information)
         self._ssp = ssp
 
         self._source = None
@@ -91,6 +91,9 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
             | MediaPlayerEntityFeature.VOLUME_SET
             | MediaPlayerEntityFeature.VOLUME_STEP
     )
+
+    def get_device_type(self):
+        return DeviceType.SURROUND_SOUND_PROCESSOR
 
     async def async_update(self):
         self._source = await self._ssp.view_input()
@@ -121,7 +124,7 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
     def async_select_source(self, source):
         """Select input source"""
         # TODO
-        _LOGGER.info(f'Switching to source {source}')
+        logger.info(f'Switching to source {source}')
 
     async def async_mute_volume(self, mute: bool) -> None:
         await self._ssp.mute() if mute else await self._ssp.unmute()
@@ -138,13 +141,16 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
 
 class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
     def __init__(self, hdmi_switcher: HDMISwitcher, device_information: DeviceInformation) -> None:
-        super().__init__(hdmi_switcher, device_information)
+        super().__init__(hdmi_switcher.get_device(), device_information)
         self._hdmi_switcher = hdmi_switcher
 
         self._state = MediaPlayerState.PLAYING
         self._source = None
 
     _attr_supported_features = MediaPlayerEntityFeature.SELECT_SOURCE
+
+    def get_device_type(self):
+        return DeviceType.HDMI_SWITCHER
 
     async def async_update(self):
         self._source = await self._hdmi_switcher.view_input()
@@ -170,4 +176,4 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
     def async_select_source(self, source):
         """Select input source"""
         # TODO
-        _LOGGER.info(f'Switching to source {source}')
+        logger.info(f'Switching to source {source}')
