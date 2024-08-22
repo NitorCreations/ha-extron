@@ -20,3 +20,9 @@ Obviously not every single feature can be controlled, only the basics:
   * Volume control (SSP 200 only)
 * Reboot button
 * Temperature sensor (SSP 200 only)
+
+The communication is done using Python's `asyncio` and requires no external libraries
+
+## License
+
+GNU GENERAL PUBLIC LICENSE version 3
