@@ -51,7 +51,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device = ExtronDevice(entry.data["host"], entry.data["port"], entry.data["password"])
         await device.connect()
     except AuthenticationError as e:
-        raise ConfigEntryNotReady('Invalid credentials') from e
+        raise ConfigEntryNotReady("Invalid credentials") from e
     except Exception as e:
         raise ConfigEntryNotReady("Unable to connect") from e
 

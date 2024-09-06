@@ -6,7 +6,7 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.helpers.selector import selector
 
 from .const import CONF_DEVICE_TYPE, CONF_HOST, CONF_PASSWORD, CONF_PORT, DOMAIN
