@@ -1,14 +1,12 @@
 import logging
 
-from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerEntityFeature, \
-    MediaPlayerState
+from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerEntityFeature, MediaPlayerState
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import DeviceInfo
 
-from custom_components.extron import ExtronConfigEntryRuntimeData, DeviceInformation
+from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntimeData
 from custom_components.extron.const import CONF_DEVICE_TYPE
-from custom_components.extron.extron import DeviceType, SurroundSoundProcessor, HDMISwitcher, \
-    ExtronDevice
+from custom_components.extron.extron import DeviceType, ExtronDevice, HDMISwitcher, SurroundSoundProcessor
 
 logger = logging.getLogger(__name__)
 
