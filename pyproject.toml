@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Home Assistant integration for Extron switchers and audio processors"
 readme = "README.md"
 license = {file = "LICENSE"}
+requires-python = ">=3.12"
 dependencies = ["homeassistant"]
 
 [tool.black]
