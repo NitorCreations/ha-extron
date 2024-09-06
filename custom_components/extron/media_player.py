@@ -46,7 +46,7 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
         device_type = self.get_device_type()
         mac_address = self._device_information.mac_address
 
-        return f'extron_{device_type.value}_{mac_address}_media_player'
+        return f"extron_{device_type.value}_{mac_address}_media_player"
 
     @property
     def state(self):
@@ -62,7 +62,7 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
 
     @property
     def name(self):
-        return f'Extron {self._device_information.model_name} media player'
+        return f"Extron {self._device_information.model_name} media player"
 
 
 class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
@@ -71,15 +71,15 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
         self._ssp = ssp
 
         self._source = None
-        self._source_list = ['1', '2', '3', '4', '5']
+        self._source_list = ["1", "2", "3", "4", "5"]
         self._volume = None
         self._muted = False
 
     _attr_supported_features = (
-            MediaPlayerEntityFeature.SELECT_SOURCE
-            | MediaPlayerEntityFeature.VOLUME_MUTE
-            | MediaPlayerEntityFeature.VOLUME_SET
-            | MediaPlayerEntityFeature.VOLUME_STEP
+        MediaPlayerEntityFeature.SELECT_SOURCE
+        | MediaPlayerEntityFeature.VOLUME_MUTE
+        | MediaPlayerEntityFeature.VOLUME_SET
+        | MediaPlayerEntityFeature.VOLUME_STEP
     )
 
     def get_device_type(self):
@@ -151,16 +151,16 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
     @property
     def source_list(self):
         model_name = self._device_information.model_name
-        sw = model_name.split(' ')[0]
+        sw = model_name.split(" ")[0]
 
         if sw == "SW2":
-            return ['1', '2']
+            return ["1", "2"]
         elif sw == "SW4":
-            return ['1', '2', '3', '4']
+            return ["1", "2", "3", "4"]
         elif sw == "SW6":
-            return ['1', '2', '3', '4', '5', '6']
+            return ["1", "2", "3", "4", "5", "6"]
         else:
-            return ['1', '2', '3', '4', '5', '6', '7', '8']
+            return ["1", "2", "3", "4", "5", "6", "7", "8"]
 
     async def async_select_source(self, source: str):
         await self._hdmi_switcher.select_input(int(source))

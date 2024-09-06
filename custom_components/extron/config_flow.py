@@ -1,7 +1,5 @@
 """Config flow for Extron integration."""
 
-from __future__ import annotations
-
 import logging
 
 from typing import Any
@@ -21,14 +19,16 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Required(CONF_HOST): str,
         vol.Required(CONF_PORT, default=23): int,
         vol.Required(CONF_PASSWORD): str,
-        vol.Required(CONF_DEVICE_TYPE): selector({
-            "select": {
-                "options": [
-                    {"label": "HDMI Switcher", "value": DeviceType.HDMI_SWITCHER.value},
-                    {"label": "Surround Sound Processor", "value": DeviceType.SURROUND_SOUND_PROCESSOR.value},
-                ]
+        vol.Required(CONF_DEVICE_TYPE): selector(
+            {
+                "select": {
+                    "options": [
+                        {"label": "HDMI Switcher", "value": DeviceType.HDMI_SWITCHER.value},
+                        {"label": "Surround Sound Processor", "value": DeviceType.SURROUND_SOUND_PROCESSOR.value},
+                    ]
+                }
             }
-        })
+        ),
     }
 )
 
@@ -44,7 +44,7 @@ class ExtronConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 # Try to connect to the device
-                extron_device = ExtronDevice(user_input['host'], user_input['port'], user_input['password'])
+                extron_device = ExtronDevice(user_input["host"], user_input["port"], user_input["password"])
                 await extron_device.connect()
 
                 # Make a title for the entry
@@ -60,6 +60,4 @@ class ExtronConfigFlow(ConfigFlow, domain=DOMAIN):
             else:
                 return self.async_create_entry(title=title, data=user_input)
 
-        return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
-        )
+        return self.async_show_form(step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors)

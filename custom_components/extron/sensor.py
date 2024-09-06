@@ -36,12 +36,12 @@ class ExtronDeviceTemperature(SensorEntity):
         self._native_value = None
 
     _attr_device_class = SensorDeviceClass.TEMPERATURE
-    _attr_native_unit_of_measurement = '°C'
+    _attr_native_unit_of_measurement = "°C"
     _attr_state_class = SensorStateClass.MEASUREMENT
 
     @property
     def unique_id(self) -> str | None:
-        return f'extron_{self._device_information.mac_address}_temperature'
+        return f"extron_{self._device_information.mac_address}_temperature"
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -49,7 +49,7 @@ class ExtronDeviceTemperature(SensorEntity):
 
     @property
     def name(self):
-        return f'Extron {self._device_information.model_name} temperature'
+        return f"Extron {self._device_information.model_name} temperature"
 
     @property
     def native_value(self) -> StateType | date | datetime | Decimal:

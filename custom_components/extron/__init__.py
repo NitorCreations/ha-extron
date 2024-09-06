@@ -1,7 +1,5 @@
 """The Extron integration."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
@@ -36,8 +34,8 @@ async def get_device_information(device: ExtronDevice) -> DeviceInformation:
 
     device_info = DeviceInfo(
         identifiers={(DOMAIN, format_mac(mac_address))},
-        name=f'Extron {model_name}',
-        manufacturer='Extron',
+        name=f"Extron {model_name}",
+        manufacturer="Extron",
         model=model_name,
         sw_version=firmware_version,
         serial_number=part_number,
@@ -50,12 +48,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Extron from a config entry."""
     # Verify we can connect to the device
     try:
-        device = ExtronDevice(entry.data['host'], entry.data['port'], entry.data['password'])
+        device = ExtronDevice(entry.data["host"], entry.data["port"], entry.data["password"])
         await device.connect()
     except AuthenticationError as e:
-        raise ConfigEntryNotReady('Invalid credentials') from e
+        raise ConfigEntryNotReady("Invalid credentials") from e
     except Exception as e:
-        raise ConfigEntryNotReady('Unable to connect') from e
+        raise ConfigEntryNotReady("Unable to connect") from e
 
     # Store the device and information about as runtime data in the entry
     device_information = await get_device_information(device)
