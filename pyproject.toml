@@ -1,3 +1,11 @@
+[project]
+name = "ha-extron"
+version = "1.0.0"
+description = "Home Assistant integration for Extron switchers and audio processors"
+readme = "README.md"
+license = {file = "LICENSE"}
+dependencies = ["homeassistant"]
+
 [tool.black]
 # https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
 line-length = 120
