@@ -6,11 +6,11 @@ from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant, DOMAIN
+from homeassistant.core import DOMAIN, HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.device_registry import format_mac, DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo, format_mac
 
-from custom_components.extron.extron import ExtronDevice, DeviceType, AuthenticationFailed
+from custom_components.extron.extron import AuthenticationError, ExtronDevice
 
 PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.SENSOR, Platform.BUTTON]
 
@@ -52,7 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         device = ExtronDevice(entry.data['host'], entry.data['port'], entry.data['password'])
         await device.connect()
-    except AuthenticationFailed as e:
+    except AuthenticationError as e:
         raise ConfigEntryNotReady('Invalid credentials') from e
     except Exception as e:
         raise ConfigEntryNotReady('Unable to connect') from e

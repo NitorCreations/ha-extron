@@ -1,15 +1,16 @@
 import logging
+
 from datetime import date, datetime
 from decimal import Decimal
 
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.typing import StateType
 
-from custom_components.extron import ExtronConfigEntryRuntimeData, DeviceInformation
+from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntimeData
 from custom_components.extron.const import CONF_DEVICE_TYPE
-from custom_components.extron.extron import SurroundSoundProcessor, DeviceType
+from custom_components.extron.extron import DeviceType, SurroundSoundProcessor
 
 logger = logging.getLogger(__name__)
 

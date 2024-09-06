@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+
 from typing import Any
 
 import voluptuous as vol
@@ -10,8 +11,8 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.helpers.selector import selector
 
-from .const import DOMAIN, CONF_HOST, CONF_PORT, CONF_PASSWORD, CONF_DEVICE_TYPE
-from .extron import DeviceType, ExtronDevice, AuthenticationFailed
+from .const import CONF_DEVICE_TYPE, CONF_HOST, CONF_PASSWORD, CONF_PORT, DOMAIN
+from .extron import AuthenticationError, DeviceType, ExtronDevice
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class ExtronConfigFlow(ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
-    async def async_step_user(self, user_input: dict[str, Any] | None = None):
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
         if user_input is not None:
@@ -52,7 +53,7 @@ class ExtronConfigFlow(ConfigFlow, domain=DOMAIN):
 
                 # Disconnect, we'll connect again later, this was just for validation
                 await extron_device.disconnect()
-            except AuthenticationFailed:
+            except AuthenticationError:
                 errors["base"] = "invalid_auth"
             except Exception:
                 errors["base"] = "cannot_connect"

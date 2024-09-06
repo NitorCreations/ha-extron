@@ -1,9 +1,9 @@
 import asyncio
 import logging
+
 from asyncio import StreamReader, StreamWriter
 from asyncio.exceptions import TimeoutError
 from enum import Enum
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ class DeviceType(Enum):
     UNKNOWN = 'unknown'
 
 
-class AuthenticationFailed(Exception):
+class AuthenticationError(Exception):
     pass
 
 
@@ -23,8 +23,8 @@ class ExtronDevice:
         self._host = host
         self._port = port
         self._password = password
-        self._reader: Optional[StreamReader] = None
-        self._writer: Optional[StreamWriter] = None
+        self._reader: StreamReader | None = None
+        self._writer: StreamWriter | None = None
         self._semaphore = asyncio.Semaphore()
         self._connected = False
 
@@ -53,7 +53,7 @@ class ExtronDevice:
             self._connected = True
             logger.info(f'Connected and authenticated to {self._host}:{self._port}')
         except TimeoutError:
-            raise AuthenticationFailed()
+            raise AuthenticationError()
 
     async def disconnect(self):
         self._connected = False
