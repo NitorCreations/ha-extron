@@ -29,7 +29,7 @@ class ExtronRebootButton(ButtonEntity):
 
     @property
     def unique_id(self) -> str | None:
-        return f'extron_{self._device_information.mac_address}_reboot_button'
+        return f"extron_{self._device_information.mac_address}_reboot_button"
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -37,7 +37,7 @@ class ExtronRebootButton(ButtonEntity):
 
     @property
     def name(self):
-        return f'Extron {self._device_information.model_name} reboot button'
+        return f"Extron {self._device_information.model_name} reboot button"
 
     async def async_press(self) -> None:
         await self._device.reboot()

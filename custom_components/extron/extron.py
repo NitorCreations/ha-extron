@@ -9,9 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 class DeviceType(Enum):
-    SURROUND_SOUND_PROCESSOR = 'surround_sound_processor'
-    HDMI_SWITCHER = 'hdmi_switcher'
-    UNKNOWN = 'unknown'
+    SURROUND_SOUND_PROCESSOR = "surround_sound_processor"
+    HDMI_SWITCHER = "hdmi_switcher"
+    UNKNOWN = "unknown"
 
 
 class AuthenticationError(Exception):
@@ -51,7 +51,7 @@ class ExtronDevice:
         try:
             await asyncio.wait_for(self.attempt_login(), timeout=5)
             self._connected = True
-            logger.info(f'Connected and authenticated to {self._host}:{self._port}')
+            logger.info(f"Connected and authenticated to {self._host}:{self._port}")
         except TimeoutError:
             raise AuthenticationError()
 
@@ -75,14 +75,14 @@ class ExtronDevice:
             response = await asyncio.wait_for(self._run_command_internal(command), timeout=3)
 
             if response is None:
-                raise RuntimeError('Command failed')
+                raise RuntimeError("Command failed")
             else:
                 return response.strip()
         except TimeoutError:
-            raise RuntimeError('Command timed out')
+            raise RuntimeError("Command timed out")
         except (ConnectionResetError, BrokenPipeError):
             self._connected = False
-            logger.warning('Connection seems to be broken, will attempt to reconnect')
+            logger.warning("Connection seems to be broken, will attempt to reconnect")
         finally:
             if not self._connected:
                 await self.connect()
@@ -100,10 +100,10 @@ class ExtronDevice:
         return await self.run_command("N")
 
     async def query_mac_address(self):
-        return await self.run_command("\x1B" + "CH")
+        return await self.run_command("\x1b" + "CH")
 
     async def reboot(self):
-        await self.run_command("\x1B" + "1BOOT")
+        await self.run_command("\x1b" + "1BOOT")
 
 
 class SurroundSoundProcessor:
@@ -117,33 +117,33 @@ class SurroundSoundProcessor:
         return await self._device.run_command("$")
 
     async def select_input(self, input: int):
-        await self._device.run_command(f'{str(input)}$')
+        await self._device.run_command(f"{str(input)}$")
 
     async def mute(self):
-        await self._device.run_command('1Z')
+        await self._device.run_command("1Z")
 
     async def unmute(self):
-        await self._device.run_command('0Z')
+        await self._device.run_command("0Z")
 
     async def is_muted(self) -> bool:
-        is_muted = await self._device.run_command('Z')
+        is_muted = await self._device.run_command("Z")
         return is_muted == "1"
 
     async def get_volume_level(self):
-        volume = await self._device.run_command('V')
+        volume = await self._device.run_command("V")
         return int(volume)
 
     async def set_volume_level(self, level: int):
-        await self._device.run_command(f'{level}V')
+        await self._device.run_command(f"{level}V")
 
     async def increment_volume(self):
-        await self._device.run_command('+V')
+        await self._device.run_command("+V")
 
     async def decrement_volume(self):
-        await self._device.run_command('-V')
+        await self._device.run_command("-V")
 
     async def get_temperature(self) -> int:
-        temperature = await self._device.run_command("\x1B" + "20STAT")
+        temperature = await self._device.run_command("\x1b" + "20STAT")
         return int(temperature)
 
 
@@ -158,4 +158,4 @@ class HDMISwitcher:
         return await self._device.run_command("!")
 
     async def select_input(self, input: int):
-        await self._device.run_command(f'{str(input)}!')
+        await self._device.run_command(f"{str(input)}!")
