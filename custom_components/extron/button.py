@@ -14,7 +14,6 @@ async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
     runtime_data: ExtronConfigEntryRuntimeData = entry.runtime_data
     device = runtime_data.device
     device_information = runtime_data.device_information
-    logger.info(device_information)
 
     # Add entities
     async_add_entities([ExtronRebootButton(device, device_information)])

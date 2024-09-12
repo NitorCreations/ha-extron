@@ -1,5 +1,7 @@
 """The Extron integration."""
 
+import logging
+
 from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
@@ -11,6 +13,7 @@ from homeassistant.helpers.device_registry import DeviceInfo, format_mac
 from custom_components.extron.extron import AuthenticationError, ExtronDevice
 
 PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.SENSOR, Platform.BUTTON]
+_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass
@@ -59,6 +62,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     device_information = await get_device_information(device)
     entry.runtime_data = ExtronConfigEntryRuntimeData(device, device_information)
 
+    _LOGGER.info(f"Initializing entry with runtime data: {entry.runtime_data}")
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True

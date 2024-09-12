@@ -16,7 +16,7 @@ async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
     runtime_data: ExtronConfigEntryRuntimeData = entry.runtime_data
     device = runtime_data.device
     device_information = runtime_data.device_information
-    logger.info(device_information)
+    input_names = runtime_data.input_names
 
     # Add entities
     if entry.data[CONF_DEVICE_TYPE] == DeviceType.SURROUND_SOUND_PROCESSOR.value:
