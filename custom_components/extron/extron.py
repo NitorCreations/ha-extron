@@ -113,8 +113,8 @@ class SurroundSoundProcessor:
     def get_device(self) -> ExtronDevice:
         return self._device
 
-    async def view_input(self):
-        return await self._device.run_command("$")
+    async def view_input(self) -> int:
+        return int(await self._device.run_command("$"))
 
     async def select_input(self, input: int):
         await self._device.run_command(f"{str(input)}$")
@@ -154,8 +154,8 @@ class HDMISwitcher:
     def get_device(self) -> ExtronDevice:
         return self._device
 
-    async def view_input(self):
-        return await self._device.run_command("!")
+    async def view_input(self) -> int:
+        return int(await self._device.run_command("!"))
 
     async def select_input(self, input: int):
         await self._device.run_command(f"{str(input)}!")
