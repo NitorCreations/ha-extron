@@ -10,6 +10,7 @@ from homeassistant.core import DOMAIN, HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.device_registry import DeviceInfo, format_mac
 
+from custom_components.extron.const import OPTION_INPUT_NAMES
 from custom_components.extron.extron import AuthenticationError, ExtronDevice
 
 PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.SENSOR, Platform.BUTTON]
@@ -27,6 +28,7 @@ class DeviceInformation:
 class ExtronConfigEntryRuntimeData:
     device: ExtronDevice
     device_information: DeviceInformation
+    input_names: list[str]
 
 
 async def get_device_information(device: ExtronDevice) -> DeviceInformation:
@@ -58,9 +60,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except Exception as e:
         raise ConfigEntryNotReady("Unable to connect") from e
 
-    # Store the device and information about as runtime data in the entry
+    # Store runtime information
     device_information = await get_device_information(device)
-    entry.runtime_data = ExtronConfigEntryRuntimeData(device, device_information)
+    input_names = entry.options.get(OPTION_INPUT_NAMES, [])
+    entry.runtime_data = ExtronConfigEntryRuntimeData(device, device_information, input_names)
+
+    # Register a listener for option updates
+    entry.async_on_unload(entry.add_update_listener(entry_update_listener))
 
     _LOGGER.info(f"Initializing entry with runtime data: {entry.runtime_data}")
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -71,3 +77,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def entry_update_listener(hass: HomeAssistant, config_entry: ConfigEntry):
+    # Reload the entry when options have been changed
+    await hass.config_entries.async_reload(config_entry.entry_id)

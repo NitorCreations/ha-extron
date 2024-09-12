@@ -21,16 +21,17 @@ async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
     # Add entities
     if entry.data[CONF_DEVICE_TYPE] == DeviceType.SURROUND_SOUND_PROCESSOR.value:
         ssp = SurroundSoundProcessor(device)
-        async_add_entities([ExtronSurroundSoundProcessor(ssp, device_information)])
+        async_add_entities([ExtronSurroundSoundProcessor(ssp, device_information, input_names)])
     elif entry.data[CONF_DEVICE_TYPE] == DeviceType.HDMI_SWITCHER.value:
         hdmi_switcher = HDMISwitcher(device)
-        async_add_entities([ExtronHDMISwitcher(hdmi_switcher, device_information)])
+        async_add_entities([ExtronHDMISwitcher(hdmi_switcher, device_information, input_names)])
 
 
 class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
-    def __init__(self, device: ExtronDevice, device_information: DeviceInformation) -> None:
+    def __init__(self, device: ExtronDevice, device_information: DeviceInformation, input_names: list[str]) -> None:
         self._device = device
         self._device_information = device_information
+        self._input_names = input_names
         self._device_class = "receiver"
         self._state = MediaPlayerState.PLAYING
 
@@ -66,8 +67,8 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
 
 
 class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
-    def __init__(self, ssp: SurroundSoundProcessor, device_information: DeviceInformation):
-        super().__init__(ssp.get_device(), device_information)
+    def __init__(self, ssp: SurroundSoundProcessor, device_information: DeviceInformation, input_names: list[str]):
+        super().__init__(ssp.get_device(), device_information, input_names)
         self._ssp = ssp
 
         self._source = None
@@ -129,8 +130,10 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
 
 
 class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
-    def __init__(self, hdmi_switcher: HDMISwitcher, device_information: DeviceInformation) -> None:
-        super().__init__(hdmi_switcher.get_device(), device_information)
+    def __init__(
+        self, hdmi_switcher: HDMISwitcher, device_information: DeviceInformation, input_names: list[str]
+    ) -> None:
+        super().__init__(hdmi_switcher.get_device(), device_information, input_names)
         self._hdmi_switcher = hdmi_switcher
 
         self._state = MediaPlayerState.PLAYING
