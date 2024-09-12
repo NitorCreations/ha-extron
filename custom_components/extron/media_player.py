@@ -12,13 +12,9 @@ from custom_components.extron.extron import DeviceType, ExtronDevice, HDMISwitch
 logger = logging.getLogger(__name__)
 
 
-def make_numeric_source_bidict(num_sources: int) -> bidict:
-    bd = bidict()
-
-    for i in range(num_sources):
-        bd.put(i, str(i))
-
-    return bd
+def make_source_bidict(num_sources: int, input_names: list[str]) -> bidict:
+    # Use user-defined input name for the source when available
+    return bidict({i + 1: input_names[i] if i < len(input_names) else str(i + 1) for i in range(num_sources)})
 
 
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
@@ -82,7 +78,7 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
         self._ssp = ssp
 
         self._source = None
-        self._source_bidict = self.make_source_bidict()
+        self._source_bidict = self.create_source_bidict()
         self._volume = None
         self._muted = False
 
@@ -122,9 +118,8 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
     def source_list(self):
         return list(self._source_bidict.values())
 
-    @staticmethod
-    def make_source_bidict() -> bidict:
-        return make_numeric_source_bidict(5)
+    def create_source_bidict(self) -> bidict:
+        return make_source_bidict(5, self._input_names)
 
     async def async_select_source(self, source):
         await self._ssp.select_input(self._source_bidict.inverse.get(source))
@@ -152,7 +147,7 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
 
         self._state = MediaPlayerState.PLAYING
         self._source = None
-        self._source_bidict = self.make_source_bidict()
+        self._source_bidict = self.create_source_bidict()
 
     _attr_supported_features = MediaPlayerEntityFeature.SELECT_SOURCE
 
@@ -170,18 +165,20 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
     def source_list(self):
         return list(self._source_bidict.values())
 
-    def make_source_bidict(self) -> bidict:
+    def create_source_bidict(self) -> bidict:
         model_name = self._device_information.model_name
         sw = model_name.split(" ")[0]
 
         if sw == "SW2":
-            return make_numeric_source_bidict(2)
+            num_sources = 2
         elif sw == "SW4":
-            return make_numeric_source_bidict(4)
+            num_sources = 4
         elif sw == "SW6":
-            return make_numeric_source_bidict(6)
+            num_sources = 6
         else:
-            return make_numeric_source_bidict(8)
+            num_sources = 8
+
+        return make_source_bidict(num_sources, self._input_names)
 
     async def async_select_source(self, source: str):
         await self._hdmi_switcher.select_input(int(source))
