@@ -55,7 +55,7 @@ class ExtronConfigFlow(ConfigFlow, domain=DOMAIN):
                 await extron_device.disconnect()
             except AuthenticationError:
                 errors["base"] = "invalid_auth"
-            except Exception:
+            except (BrokenPipeError, ConnectionError, OSError):  # all technically OSError
                 errors["base"] = "cannot_connect"
             else:
                 return self.async_create_entry(title=title, data=user_input)
