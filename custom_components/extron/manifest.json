@@ -11,7 +11,7 @@
   "documentation": "https://www.home-assistant.io/integrations/extron",
   "homekit": {},
   "iot_class": "local_polling",
-  "requirements": [],
+  "requirements": ["bidict"],
   "ssdp": [],
   "zeroconf": []
 }
