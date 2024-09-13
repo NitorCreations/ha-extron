@@ -102,6 +102,9 @@ class ExtronDevice:
     async def query_mac_address(self):
         return await self.run_command("\x1b" + "CH")
 
+    async def query_ip_address(self):
+        return await self.run_command("\x1b" + "CI")
+
     async def reboot(self):
         await self.run_command("\x1b" + "1BOOT")
 

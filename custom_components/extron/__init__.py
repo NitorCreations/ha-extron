@@ -36,6 +36,7 @@ async def get_device_information(device: ExtronDevice) -> DeviceInformation:
     model_name = await device.query_model_name()
     firmware_version = await device.query_firmware_version()
     part_number = await device.query_part_number()
+    ip_address = await device.query_ip_address()
 
     device_info = DeviceInfo(
         identifiers={(DOMAIN, format_mac(mac_address))},
@@ -44,6 +45,7 @@ async def get_device_information(device: ExtronDevice) -> DeviceInformation:
         model=model_name,
         sw_version=firmware_version,
         serial_number=part_number,
+        configuration_url=f"http://{ip_address}/",
     )
 
     return DeviceInformation(mac_address=format_mac(mac_address), model_name=model_name, device_info=device_info)
