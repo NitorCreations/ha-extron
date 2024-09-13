@@ -7,6 +7,7 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
+from homeassistant.helpers.device_registry import format_mac
 from homeassistant.helpers.selector import selector
 
 from .const import CONF_DEVICE_TYPE, CONF_HOST, CONF_PASSWORD, CONF_PORT, DOMAIN, OPTION_INPUT_NAMES
@@ -50,6 +51,11 @@ class ExtronConfigFlow(ConfigFlow, domain=DOMAIN):
                 # Make a title for the entry
                 model_name = await extron_device.query_model_name()
                 title = f"Extron {model_name}"
+
+                # Make a unique ID for the entry, prevent adding the same device twice
+                unique_id = format_mac(await extron_device.query_mac_address())
+                await self.async_set_unique_id(unique_id)
+                self._abort_if_unique_id_configured()
 
                 # Disconnect, we'll connect again later, this was just for validation
                 await extron_device.disconnect()
