@@ -18,7 +18,7 @@ Devices must have Telnet access enabled
 
 ## Features
 
-Obviously not every single feature can be controlled, only the basics:
+Obviously, not every single feature can be controlled, only the basics:
 
 * Media player support
   * Source selection
@@ -29,6 +29,12 @@ Obviously not every single feature can be controlled, only the basics:
 The communication is done using Python's `asyncio` and requires no external libraries
 
 ## Development
+
+For local development, 
+use [uv](https://github.com/astral-sh/uv) to handle the Python dependencies and virtual env.
+Install uv with their standalone installer script or with package managers like homebrew.
+Then use `uv sync` to automatically create a virtual env and install the dependencies.
+Update all dependencies with `uv lock --upgrade`.
 
 ### Tests
 
