@@ -181,5 +181,5 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
         return make_source_bidict(num_sources, self._input_names)
 
     async def async_select_source(self, source: str):
-        await self._hdmi_switcher.select_input(int(source))
+        await self._hdmi_switcher.select_input(self._source_bidict.inverse.get(source))
         self._source = source
