@@ -14,11 +14,11 @@ Home Assistant integration for Extron switchers and audio processors.
 
 ## Requirements
 
-Devices must have Telnet access enabled
+Devices must have Telnet access enabled.
 
 ## Features
 
-Obviously not every single feature can be controlled, only the basics:
+Not every single feature can be controlled, only the basics:
 
 * Media player support
   * Source selection
@@ -26,13 +26,24 @@ Obviously not every single feature can be controlled, only the basics:
 * Reboot button
 * Temperature sensor (SSP 200 only)
 
-The communication is done using Python's `asyncio` and requires no external libraries
+The communication is done using Python's `asyncio` and requires no external libraries.
 
 ## Development
+
+For local development, 
+use [uv](https://github.com/astral-sh/uv) to handle the Python dependencies and virtual env.
+Install uv with their standalone installer script or with package managers like homebrew.
+
+Use `uv sync` to automatically create a virtual env and install the dependencies.
+
+Update all dependencies with `uv lock --upgrade`.
 
 ### Tests
 
 ```bash
+# Using uv managed virtual env
+uv run python -m unittest discover -s tests/ -v
+# Manually activated virtual env with necessary dependencies
 python3 -m unittest discover -s tests/ -v
 ```
 
