@@ -27,6 +27,14 @@ Obviously not every single feature can be controlled, only the basics:
 
 The communication is done using Python's `asyncio` and requires no external libraries
 
+## Development
+
+### Tests
+
+```bash
+python3 -m unittest discover -s tests/ -v
+```
+
 ## License
 
 GNU GENERAL PUBLIC LICENSE version 3

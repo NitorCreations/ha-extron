@@ -1,5 +1,6 @@
 import logging
 
+from bidict import bidict
 from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerEntityFeature, MediaPlayerState
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import DeviceInfo
@@ -11,26 +12,32 @@ from custom_components.extron.extron import DeviceType, ExtronDevice, HDMISwitch
 logger = logging.getLogger(__name__)
 
 
+def make_source_bidict(num_sources: int, input_names: list[str]) -> bidict:
+    # Use user-defined input name for the source when available
+    return bidict({i + 1: input_names[i] if i < len(input_names) else str(i + 1) for i in range(num_sources)})
+
+
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
     # Extract stored runtime data from the entry
     runtime_data: ExtronConfigEntryRuntimeData = entry.runtime_data
     device = runtime_data.device
     device_information = runtime_data.device_information
-    logger.info(device_information)
+    input_names = runtime_data.input_names
 
     # Add entities
     if entry.data[CONF_DEVICE_TYPE] == DeviceType.SURROUND_SOUND_PROCESSOR.value:
         ssp = SurroundSoundProcessor(device)
-        async_add_entities([ExtronSurroundSoundProcessor(ssp, device_information)])
+        async_add_entities([ExtronSurroundSoundProcessor(ssp, device_information, input_names)])
     elif entry.data[CONF_DEVICE_TYPE] == DeviceType.HDMI_SWITCHER.value:
         hdmi_switcher = HDMISwitcher(device)
-        async_add_entities([ExtronHDMISwitcher(hdmi_switcher, device_information)])
+        async_add_entities([ExtronHDMISwitcher(hdmi_switcher, device_information, input_names)])
 
 
 class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
-    def __init__(self, device: ExtronDevice, device_information: DeviceInformation) -> None:
+    def __init__(self, device: ExtronDevice, device_information: DeviceInformation, input_names: list[str]) -> None:
         self._device = device
         self._device_information = device_information
+        self._input_names = input_names
         self._device_class = "receiver"
         self._state = MediaPlayerState.PLAYING
 
@@ -66,12 +73,12 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
 
 
 class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
-    def __init__(self, ssp: SurroundSoundProcessor, device_information: DeviceInformation):
-        super().__init__(ssp.get_device(), device_information)
+    def __init__(self, ssp: SurroundSoundProcessor, device_information: DeviceInformation, input_names: list[str]):
+        super().__init__(ssp.get_device(), device_information, input_names)
         self._ssp = ssp
 
         self._source = None
-        self._source_list = ["1", "2", "3", "4", "5"]
+        self._source_bidict = self.create_source_bidict()
         self._volume = None
         self._muted = False
 
@@ -86,7 +93,7 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
         return DeviceType.SURROUND_SOUND_PROCESSOR
 
     async def async_update(self):
-        self._source = await self._ssp.view_input()
+        self._source = self._source_bidict.get(await self._ssp.view_input())
         self._muted = await self._ssp.is_muted()
         volume = await self._ssp.get_volume_level()
         self._volume = volume / 100
@@ -109,10 +116,13 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
 
     @property
     def source_list(self):
-        return self._source_list
+        return list(self._source_bidict.values())
+
+    def create_source_bidict(self) -> bidict:
+        return make_source_bidict(5, self._input_names)
 
     async def async_select_source(self, source):
-        await self._ssp.select_input(int(source))
+        await self._ssp.select_input(self._source_bidict.inverse.get(source))
         self._source = source
 
     async def async_mute_volume(self, mute: bool) -> None:
@@ -129,12 +139,15 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
 
 
 class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
-    def __init__(self, hdmi_switcher: HDMISwitcher, device_information: DeviceInformation) -> None:
-        super().__init__(hdmi_switcher.get_device(), device_information)
+    def __init__(
+        self, hdmi_switcher: HDMISwitcher, device_information: DeviceInformation, input_names: list[str]
+    ) -> None:
+        super().__init__(hdmi_switcher.get_device(), device_information, input_names)
         self._hdmi_switcher = hdmi_switcher
 
         self._state = MediaPlayerState.PLAYING
         self._source = None
+        self._source_bidict = self.create_source_bidict()
 
     _attr_supported_features = MediaPlayerEntityFeature.SELECT_SOURCE
 
@@ -142,7 +155,7 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
         return DeviceType.HDMI_SWITCHER
 
     async def async_update(self):
-        self._source = await self._hdmi_switcher.view_input()
+        self._source = self._source_bidict.get(await self._hdmi_switcher.view_input())
 
     @property
     def source(self):
@@ -150,17 +163,22 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
 
     @property
     def source_list(self):
+        return list(self._source_bidict.values())
+
+    def create_source_bidict(self) -> bidict:
         model_name = self._device_information.model_name
         sw = model_name.split(" ")[0]
 
         if sw == "SW2":
-            return ["1", "2"]
+            num_sources = 2
         elif sw == "SW4":
-            return ["1", "2", "3", "4"]
+            num_sources = 4
         elif sw == "SW6":
-            return ["1", "2", "3", "4", "5", "6"]
+            num_sources = 6
         else:
-            return ["1", "2", "3", "4", "5", "6", "7", "8"]
+            num_sources = 8
+
+        return make_source_bidict(num_sources, self._input_names)
 
     async def async_select_source(self, source: str):
         await self._hdmi_switcher.select_input(int(source))
