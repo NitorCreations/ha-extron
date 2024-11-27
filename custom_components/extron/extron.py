@@ -1,11 +1,13 @@
 import asyncio
 import logging
+import re
 
 from asyncio import StreamReader, StreamWriter
 from asyncio.exceptions import TimeoutError
 from enum import Enum
 
 logger = logging.getLogger(__name__)
+error_regexp = re.compile("E[0-9]{2}")
 
 
 class DeviceType(Enum):
@@ -16,6 +18,14 @@ class DeviceType(Enum):
 
 class AuthenticationError(Exception):
     pass
+
+
+class ResponseError(Exception):
+    pass
+
+
+def is_error_response(response: str) -> bool:
+    return error_regexp.match(response) is not None
 
 
 class ExtronDevice:
@@ -82,6 +92,9 @@ class ExtronDevice:
 
             if response is None:
                 raise RuntimeError("Command failed")
+
+            if is_error_response(response):
+                raise ResponseError(f"Command failed with error code {response}")
 
             return response.strip()
         except TimeoutError:
