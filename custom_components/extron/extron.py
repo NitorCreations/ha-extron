@@ -76,7 +76,7 @@ class ExtronDevice:
 
             return await self._read_until("\r\n")
 
-    async def run_command(self, command: str):
+    async def run_command(self, command: str) -> str:
         try:
             response = await asyncio.wait_for(self._run_command_internal(command), timeout=3)
 
@@ -88,9 +88,10 @@ class ExtronDevice:
             raise RuntimeError("Command timed out")
         except (ConnectionResetError, BrokenPipeError):
             self._connected = False
-            logger.warning("Connection seems to be broken, will attempt to reconnect")
+            raise RuntimeError("Connection was reset")
         finally:
             if not self._connected:
+                logger.warning("Connection seems to be broken, will attempt to reconnect")
                 await self.reconnect()
 
     async def query_model_name(self):
