@@ -38,6 +38,8 @@ class ExtronDevice:
             if b.endswith(phrase.encode()):
                 return b.decode()
 
+        return None
+
     async def attempt_login(self):
         async with self._semaphore:
             await self._read_until("Password:")
@@ -80,8 +82,8 @@ class ExtronDevice:
 
             if response is None:
                 raise RuntimeError("Command failed")
-            else:
-                return response.strip()
+
+            return response.strip()
         except TimeoutError:
             raise RuntimeError("Command timed out")
         except (ConnectionResetError, BrokenPipeError):
