@@ -60,6 +60,10 @@ class ExtronDevice:
         self._writer.close()
         await self._writer.wait_closed()
 
+    async def reconnect(self):
+        await self.disconnect()
+        await self.connect()
+
     def is_connected(self) -> bool:
         return self._connected
 
@@ -85,7 +89,7 @@ class ExtronDevice:
             logger.warning("Connection seems to be broken, will attempt to reconnect")
         finally:
             if not self._connected:
-                await self.connect()
+                await self.reconnect()
 
     async def query_model_name(self):
         return await self.run_command("1I")
