@@ -47,6 +47,14 @@ uv run python -m unittest discover -s tests/ -v
 python3 -m unittest discover -s tests/ -v
 ```
 
+### Making a new release
+
+1. Update the version number in `manifest.json`
+2. Tag the release
+3. Make a GitHub release
+
+The new release should be picked up by HACS momentarily.
+
 ## License
 
 GNU GENERAL PUBLIC LICENSE version 3
