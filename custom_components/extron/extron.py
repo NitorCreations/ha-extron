@@ -1,11 +1,13 @@
 import asyncio
 import logging
+import re
 
 from asyncio import StreamReader, StreamWriter
 from asyncio.exceptions import TimeoutError
 from enum import Enum
 
 logger = logging.getLogger(__name__)
+error_regexp = re.compile("E[0-9]{2}")
 
 
 class DeviceType(Enum):
@@ -16,6 +18,14 @@ class DeviceType(Enum):
 
 class AuthenticationError(Exception):
     pass
+
+
+class ResponseError(Exception):
+    pass
+
+
+def is_error_response(response: str) -> bool:
+    return error_regexp.match(response) is not None
 
 
 class ExtronDevice:
@@ -37,6 +47,8 @@ class ExtronDevice:
 
             if b.endswith(phrase.encode()):
                 return b.decode()
+
+        return None
 
     async def attempt_login(self):
         async with self._semaphore:
@@ -60,6 +72,10 @@ class ExtronDevice:
         self._writer.close()
         await self._writer.wait_closed()
 
+    async def reconnect(self):
+        await self.disconnect()
+        await self.connect()
+
     def is_connected(self) -> bool:
         return self._connected
 
@@ -70,22 +86,26 @@ class ExtronDevice:
 
             return await self._read_until("\r\n")
 
-    async def run_command(self, command: str):
+    async def run_command(self, command: str) -> str:
         try:
             response = await asyncio.wait_for(self._run_command_internal(command), timeout=3)
 
             if response is None:
                 raise RuntimeError("Command failed")
-            else:
-                return response.strip()
+
+            if is_error_response(response):
+                raise ResponseError(f"Command failed with error code {response}")
+
+            return response.strip()
         except TimeoutError:
             raise RuntimeError("Command timed out")
         except (ConnectionResetError, BrokenPipeError):
             self._connected = False
-            logger.warning("Connection seems to be broken, will attempt to reconnect")
+            raise RuntimeError("Connection was reset")
         finally:
             if not self._connected:
-                await self.connect()
+                logger.warning("Connection seems to be broken, will attempt to reconnect")
+                await self.reconnect()
 
     async def query_model_name(self):
         return await self.run_command("1I")
