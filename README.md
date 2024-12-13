@@ -49,7 +49,7 @@ python3 -m unittest discover -s tests/ -v
 
 ### Making a new release
 
-1. Update the version number in `manifest.json`
+1. Update the version number in `manifest.json` and `pyproject.toml`
 2. Tag the release
 3. Make a GitHub release
 
