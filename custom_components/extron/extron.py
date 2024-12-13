@@ -69,8 +69,13 @@ class ExtronDevice:
 
     async def disconnect(self):
         self._connected = False
-        self._writer.close()
-        await self._writer.wait_closed()
+
+        # Ignore potential connection errors here, we're about to disconnect after all
+        try:
+            self._writer.close()
+            await self._writer.wait_closed()
+        except ConnectionError:
+            pass
 
     async def reconnect(self):
         await self.disconnect()
