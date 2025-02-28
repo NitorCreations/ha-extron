@@ -30,20 +30,17 @@ The communication is done using Python's `asyncio` and requires no external libr
 
 ## Development
 
-For local development, 
-use [uv](https://github.com/astral-sh/uv) to handle the Python dependencies and virtual env.
-Install uv with their standalone installer script or with package managers like homebrew.
+Install project dependencies:
 
-Use `uv sync` to automatically create a virtual env and install the dependencies.
+```bash
+pip install .
+```
 
-Update all dependencies with `uv lock --upgrade`.
+Mount `custom_components/extron` in a Home Assistant development environment
 
 ### Tests
 
 ```bash
-# Using uv managed virtual env
-uv run python -m unittest discover -s tests/ -v
-# Manually activated virtual env with necessary dependencies
 python3 -m unittest discover -s tests/ -v
 ```
 
