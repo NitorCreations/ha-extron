@@ -30,13 +30,26 @@ The communication is done using Python's `asyncio` and requires no external libr
 
 ## Development
 
-Install project dependencies:
+Developing the integration and testing it locally in Home Assistant are two separate tasks.
 
-```bash
-pip install .
+For development, create a virtual environment (either manually or in an IDE like PyCharm), then install the 
+dependencies using `pip install .`.
+
+Running the integration involves setting up a Home Assistant development environment and making the integration 
+available to it:
+
+1. Clone this repository
+2. Set up a Home Assistant [development environment](https://developers.home-assistant.io/docs/development_environment/)
+3. Open `devcontainer.json` and add something like this to `mounts`:
+
+```
+"source=${localEnv:HOME}/Projects/ha-extron/custom_components/extron,target=${containerWorkspaceFolder}/config/custom_components/extron,type=bind",
 ```
 
-Mount `custom_components/extron` in a Home Assistant development environment
+Repeat this for any other integrations you want to make available in your local Home Assistant environment.
+
+4. Start the development environment and browse to `http://localhost:8123`. If you go to Settings -> Integrations, you should be able to see your 
+   custom integrations listed
 
 ### Tests
 
