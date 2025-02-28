@@ -9,9 +9,9 @@ from homeassistant.const import Platform
 from homeassistant.core import DOMAIN, HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.device_registry import DeviceInfo, format_mac
+from pyextron import AuthenticationError, ExtronDevice
 
 from custom_components.extron.const import OPTION_INPUT_NAMES
-from custom_components.extron.extron import AuthenticationError, ExtronDevice
 
 PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.SENSOR, Platform.BUTTON]
 _LOGGER = logging.getLogger(__name__)

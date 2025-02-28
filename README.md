@@ -30,20 +30,30 @@ The communication is done using Python's `asyncio` and requires no external libr
 
 ## Development
 
-For local development, 
-use [uv](https://github.com/astral-sh/uv) to handle the Python dependencies and virtual env.
-Install uv with their standalone installer script or with package managers like homebrew.
+Developing the integration and testing it locally in Home Assistant are two separate tasks.
 
-Use `uv sync` to automatically create a virtual env and install the dependencies.
+For development, create a virtual environment (either manually or in an IDE like PyCharm), then install the 
+dependencies using `pip install .`.
 
-Update all dependencies with `uv lock --upgrade`.
+Running the integration involves setting up a Home Assistant development environment and making the integration 
+available to it:
+
+1. Clone this repository
+2. Set up a Home Assistant [development environment](https://developers.home-assistant.io/docs/development_environment/)
+3. Open `devcontainer.json` and add something like this to `mounts`:
+
+```
+"source=${localEnv:HOME}/Projects/ha-extron/custom_components/extron,target=${containerWorkspaceFolder}/config/custom_components/extron,type=bind",
+```
+
+Repeat this for any other integrations you want to make available in your local Home Assistant environment.
+
+4. Start the development environment and browse to `http://localhost:8123`. If you go to Settings -> Integrations, you should be able to see your 
+   custom integrations listed
 
 ### Tests
 
 ```bash
-# Using uv managed virtual env
-uv run python -m unittest discover -s tests/ -v
-# Manually activated virtual env with necessary dependencies
 python3 -m unittest discover -s tests/ -v
 ```
 

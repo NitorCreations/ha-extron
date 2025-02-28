@@ -11,7 +11,10 @@
   "documentation": "https://www.home-assistant.io/integrations/extron",
   "homekit": {},
   "iot_class": "local_polling",
-  "requirements": ["bidict"],
+  "requirements": [
+    "bidict",
+    "pyextron @ git+https://github.com/NitorCreations/pyextron.git@3da5324"
+  ],
   "ssdp": [],
   "zeroconf": []
 }

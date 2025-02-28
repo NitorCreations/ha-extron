@@ -9,9 +9,9 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
 from homeassistant.helpers.device_registry import format_mac
 from homeassistant.helpers.selector import selector
+from pyextron import AuthenticationError, DeviceType, ExtronDevice
 
 from .const import CONF_DEVICE_TYPE, CONF_HOST, CONF_PASSWORD, CONF_PORT, DOMAIN, OPTION_INPUT_NAMES
-from .extron import AuthenticationError, DeviceType, ExtronDevice
 
 _LOGGER = logging.getLogger(__name__)
 
