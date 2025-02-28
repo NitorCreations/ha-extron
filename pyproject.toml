@@ -5,7 +5,11 @@ description = "Home Assistant integration for Extron switchers and audio process
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.12"
-dependencies = ["homeassistant", "bidict"]
+dependencies = [
+    "homeassistant",
+    "bidict",
+    "pyextron @ git+https://github.com/NitorCreations/pyextron.git@3da5324"
+]
 
 [tool.black]
 # https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
