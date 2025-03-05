@@ -16,5 +16,6 @@
     "pyextron @ git+https://github.com/NitorCreations/pyextron.git@3da5324"
   ],
   "ssdp": [],
-  "zeroconf": []
+  "zeroconf": [],
+  "loggers": ["pyextron"]
 }
