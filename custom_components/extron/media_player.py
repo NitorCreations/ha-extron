@@ -1,5 +1,3 @@
-import logging
-
 from bidict import bidict
 from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerEntityFeature, MediaPlayerState
 from homeassistant.config_entries import ConfigEntry
@@ -8,8 +6,6 @@ from pyextron import DeviceType, ExtronDevice, HDMISwitcher, SurroundSoundProces
 
 from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntimeData
 from custom_components.extron.const import CONF_DEVICE_TYPE
-
-logger = logging.getLogger(__name__)
 
 
 def make_source_bidict(num_sources: int, input_names: list[str]) -> bidict:
