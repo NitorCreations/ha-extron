@@ -119,7 +119,6 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
 
     async def async_select_source(self, source):
         await self._ssp.select_input(self._source_bidict.inverse.get(source))
-        self._source = source
 
     async def async_mute_volume(self, mute: bool) -> None:
         await self._ssp.mute() if mute else await self._ssp.unmute()
@@ -178,4 +177,3 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
 
     async def async_select_source(self, source: str):
         await self._hdmi_switcher.select_input(self._source_bidict.inverse.get(source))
-        self._source = source
