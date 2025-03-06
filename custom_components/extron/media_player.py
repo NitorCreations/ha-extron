@@ -1,5 +1,3 @@
-import logging
-
 from bidict import bidict
 from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerEntityFeature, MediaPlayerState
 from homeassistant.config_entries import ConfigEntry
@@ -8,8 +6,6 @@ from pyextron import DeviceType, ExtronDevice, HDMISwitcher, SurroundSoundProces
 
 from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntimeData
 from custom_components.extron.const import CONF_DEVICE_TYPE
-
-logger = logging.getLogger(__name__)
 
 
 def make_source_bidict(num_sources: int, input_names: list[str]) -> bidict:
@@ -123,7 +119,6 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
 
     async def async_select_source(self, source):
         await self._ssp.select_input(self._source_bidict.inverse.get(source))
-        self._source = source
 
     async def async_mute_volume(self, mute: bool) -> None:
         await self._ssp.mute() if mute else await self._ssp.unmute()
@@ -182,4 +177,3 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
 
     async def async_select_source(self, source: str):
         await self._hdmi_switcher.select_input(self._source_bidict.inverse.get(source))
-        self._source = source
