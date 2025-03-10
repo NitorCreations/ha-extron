@@ -55,4 +55,9 @@ class ExtronDeviceTemperature(SensorEntity):
         return self._native_value
 
     async def async_update(self):
-        self._native_value = await self._ssp.get_temperature()
+        try:
+            self._native_value = await self._ssp.get_temperature()
+        except Exception:
+            self._attr_available = False
+        else:
+            self._attr_available = True
