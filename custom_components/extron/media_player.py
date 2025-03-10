@@ -128,10 +128,12 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
         await self._ssp.set_volume_level(int(volume * 100))
 
     async def async_volume_up(self) -> None:
-        await self._ssp.increment_volume()
+        if int(self._volume * 100) < 100:
+            await self._ssp.increment_volume()
 
     async def async_volume_down(self) -> None:
-        await self._ssp.decrement_volume()
+        if int(self._volume * 100) > 0:
+            await self._ssp.decrement_volume()
 
 
 class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
