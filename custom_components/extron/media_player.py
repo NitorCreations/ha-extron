@@ -56,10 +56,6 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
         return self._state
 
     @property
-    def available(self) -> bool:
-        return self._device.is_connected()
-
-    @property
     def device_info(self) -> DeviceInfo:
         return self._device_information.device_info
 
@@ -89,10 +85,15 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
         return DeviceType.SURROUND_SOUND_PROCESSOR
 
     async def async_update(self):
-        self._source = self._source_bidict.get(await self._ssp.view_input())
-        self._muted = await self._ssp.is_muted()
-        volume = await self._ssp.get_volume_level()
-        self._volume = volume / 100
+        try:
+            self._source = self._source_bidict.get(await self._ssp.view_input())
+            self._muted = await self._ssp.is_muted()
+            volume = await self._ssp.get_volume_level()
+            self._volume = volume / 100
+        except Exception:
+            self._attr_available = False
+        else:
+            self._attr_available = True
 
     @property
     def volume_level(self):
@@ -127,10 +128,12 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
         await self._ssp.set_volume_level(int(volume * 100))
 
     async def async_volume_up(self) -> None:
-        await self._ssp.increment_volume()
+        if int(self._volume * 100) < 100:
+            await self._ssp.increment_volume()
 
     async def async_volume_down(self) -> None:
-        await self._ssp.decrement_volume()
+        if int(self._volume * 100) > 0:
+            await self._ssp.decrement_volume()
 
 
 class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
@@ -150,7 +153,12 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
         return DeviceType.HDMI_SWITCHER
 
     async def async_update(self):
-        self._source = self._source_bidict.get(await self._hdmi_switcher.view_input())
+        try:
+            self._source = self._source_bidict.get(await self._hdmi_switcher.view_input())
+        except Exception:
+            self._attr_available = False
+        else:
+            self._attr_available = True
 
     @property
     def source(self):
