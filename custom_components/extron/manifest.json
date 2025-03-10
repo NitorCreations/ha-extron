@@ -1,7 +1,7 @@
 {
   "domain": "extron",
   "name": "Extron",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "codeowners": [
     "@Jalle19"
   ],
