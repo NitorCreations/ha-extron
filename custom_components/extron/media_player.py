@@ -96,10 +96,11 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
 
     async def async_update(self):
         try:
-            self._source = self._source_bidict.get(await self._ssp.view_input())
-            self._muted = await self._ssp.is_muted()
-            volume = await self._ssp.get_volume_level()
-            self._volume = volume / 100
+            async with self._ssp._device.connection():
+                self._source = self._source_bidict.get(await self._ssp.view_input())
+                self._muted = await self._ssp.is_muted()
+                volume = await self._ssp.get_volume_level()
+                self._volume = volume / 100
         except Exception:
             logger.exception("An error occurred while trying to update entity state")
             self._attr_available = False
@@ -130,21 +131,26 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
         return make_source_bidict(5, self._input_names)
 
     async def async_select_source(self, source):
-        await self._ssp.select_input(self._source_bidict.inverse.get(source))
+        async with self._ssp._device.connection():
+            await self._ssp.select_input(self._source_bidict.inverse.get(source))
 
     async def async_mute_volume(self, mute: bool) -> None:
-        await self._ssp.mute() if mute else await self._ssp.unmute()
+        async with self._ssp._device.connection():
+            await self._ssp.mute() if mute else await self._ssp.unmute()
 
     async def async_set_volume_level(self, volume: float) -> None:
-        await self._ssp.set_volume_level(int(volume * 100))
+        async with self._ssp._device.connection():
+            await self._ssp.set_volume_level(int(volume * 100))
 
     async def async_volume_up(self) -> None:
-        if int(self._volume * 100) < 100:
-            await self._ssp.increment_volume()
+        async with self._ssp._device.connection():
+            if int(self._volume * 100) < 100:
+                await self._ssp.increment_volume()
 
     async def async_volume_down(self) -> None:
-        if int(self._volume * 100) > 0:
-            await self._ssp.decrement_volume()
+        async with self._ssp._device.connection():
+            if int(self._volume * 100) > 0:
+                await self._ssp.decrement_volume()
 
 
 class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
@@ -165,7 +171,8 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
 
     async def async_update(self):
         try:
-            self._source = self._source_bidict.get(await self._hdmi_switcher.view_input())
+            async with self._hdmi_switcher._device.connection():
+                self._source = self._source_bidict.get(await self._hdmi_switcher.view_input())
         except Exception:
             logger.exception("An error occurred while trying to update entity state")
             self._attr_available = False

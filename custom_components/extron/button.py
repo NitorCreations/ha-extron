@@ -37,7 +37,5 @@ class ExtronRebootButton(ButtonEntity):
         return f"Extron {self._device_information.model_name} reboot button"
 
     async def async_press(self) -> None:
-        await self._device.reboot()
-
-        # Disconnect immediately so we start attempting to reconnect immediately
-        await self._device.disconnect()
+        async with self._device.connection():
+            await self._device.reboot()
