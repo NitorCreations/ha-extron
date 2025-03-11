@@ -1,5 +1,3 @@
-import logging
-
 from homeassistant.components.button import ButtonDeviceClass, ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -8,7 +6,6 @@ from pyextron import ExtronDevice
 
 from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntimeData
 
-logger = logging.getLogger(__name__)
 
 async def async_setup_entry(_hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     # Extract stored runtime data from the entry
