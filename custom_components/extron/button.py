@@ -1,15 +1,13 @@
-import logging
-
 from homeassistant.components.button import ButtonDeviceClass, ButtonEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
+from pyextron import ExtronDevice
 
-from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntimeData, ExtronDevice
-
-logger = logging.getLogger(__name__)
+from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntimeData
 
 
-async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
+async def async_setup_entry(_hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     # Extract stored runtime data from the entry
     runtime_data: ExtronConfigEntryRuntimeData = entry.runtime_data
     device = runtime_data.device
@@ -39,7 +37,5 @@ class ExtronRebootButton(ButtonEntity):
         return f"Extron {self._device_information.model_name} reboot button"
 
     async def async_press(self) -> None:
-        await self._device.reboot()
-
-        # Disconnect immediately so we start attempting to reconnect immediately
-        await self._device.disconnect()
+        async with self._device.connection():
+            await self._device.reboot()

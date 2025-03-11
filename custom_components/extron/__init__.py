@@ -32,11 +32,12 @@ class ExtronConfigEntryRuntimeData:
 
 
 async def get_device_information(device: ExtronDevice) -> DeviceInformation:
-    mac_address = await device.query_mac_address()
-    model_name = await device.query_model_name()
-    firmware_version = await device.query_firmware_version()
-    part_number = await device.query_part_number()
-    ip_address = await device.query_ip_address()
+    async with device.connection():
+        mac_address = await device.query_mac_address()
+        model_name = await device.query_model_name()
+        firmware_version = await device.query_firmware_version()
+        part_number = await device.query_part_number()
+        ip_address = await device.query_ip_address()
 
     device_info = DeviceInfo(
         identifiers={(DOMAIN, format_mac(mac_address))},
@@ -57,6 +58,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         device = ExtronDevice(entry.data["host"], entry.data["port"], entry.data["password"])
         await device.connect()
+        await device.disconnect()
     except AuthenticationError as e:
         raise ConfigEntryNotReady("Invalid credentials") from e
     except Exception as e:
