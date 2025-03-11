@@ -4,8 +4,9 @@ from homeassistant.components.button import ButtonDeviceClass, ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
+from pyextron import ExtronDevice
 
-from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntimeData, ExtronDevice
+from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntimeData
 
 logger = logging.getLogger(__name__)
 
