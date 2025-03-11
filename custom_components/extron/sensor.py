@@ -58,6 +58,7 @@ class ExtronDeviceTemperature(SensorEntity):
         try:
             self._native_value = await self._ssp.get_temperature()
         except Exception:
+            logger.exception(f"async_update from {self.name} encountered error:")
             self._attr_available = False
         else:
             self._attr_available = True

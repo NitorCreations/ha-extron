@@ -1,3 +1,5 @@
+import logging
+
 from bidict import bidict
 from homeassistant.components.media_player import (
     MediaPlayerDeviceClass,
@@ -12,6 +14,8 @@ from pyextron import DeviceType, ExtronDevice, HDMISwitcher, SurroundSoundProces
 
 from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntimeData
 from custom_components.extron.const import CONF_DEVICE_TYPE
+
+logger = logging.getLogger(__name__)
 
 
 def make_source_bidict(num_sources: int, input_names: list[str]) -> bidict:
@@ -97,6 +101,7 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
             volume = await self._ssp.get_volume_level()
             self._volume = volume / 100
         except Exception:
+            logger.exception("An error occurred while trying to update entity state")
             self._attr_available = False
         else:
             self._attr_available = True
@@ -162,6 +167,7 @@ class ExtronHDMISwitcher(AbstractExtronMediaPlayerEntity):
         try:
             self._source = self._source_bidict.get(await self._hdmi_switcher.view_input())
         except Exception:
+            logger.exception("An error occurred while trying to update entity state")
             self._attr_available = False
         else:
             self._attr_available = True
