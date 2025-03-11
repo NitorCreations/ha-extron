@@ -5,7 +5,8 @@
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=NitorCreations&repository=https%3A%2F%2Fgithub.com%2FNitorCreations%2Fha-extron)
 
-Home Assistant integration for Extron switchers and audio processors.
+Home Assistant integration for Extron switchers and audio processors. It uses our 
+[pyextron](https://github.com/NitorCreations/pyextron) library under the hood.
 
 ## Supported devices
 
