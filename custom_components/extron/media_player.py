@@ -1,6 +1,7 @@
 from bidict import bidict
 from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerEntityFeature, MediaPlayerState
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from pyextron import DeviceType, ExtronDevice, HDMISwitcher, SurroundSoundProcessor
 
@@ -13,7 +14,7 @@ def make_source_bidict(num_sources: int, input_names: list[str]) -> bidict:
     return bidict({i + 1: input_names[i] if i < len(input_names) else str(i + 1) for i in range(num_sources)})
 
 
-async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
+async def async_setup_entry(_hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     # Extract stored runtime data from the entry
     runtime_data: ExtronConfigEntryRuntimeData = entry.runtime_data
     device = runtime_data.device
