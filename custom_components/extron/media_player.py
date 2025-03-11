@@ -1,5 +1,10 @@
 from bidict import bidict
-from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerEntityFeature, MediaPlayerState
+from homeassistant.components.media_player import (
+    MediaPlayerDeviceClass,
+    MediaPlayerEntity,
+    MediaPlayerEntityFeature,
+    MediaPlayerState,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
@@ -35,7 +40,7 @@ class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
         self._device = device
         self._device_information = device_information
         self._input_names = input_names
-        self._device_class = "receiver"
+        self._device_class = MediaPlayerDeviceClass.RECEIVER
         self._state = MediaPlayerState.PLAYING
 
     def get_device_type(self):
