@@ -11,7 +11,15 @@ from homeassistant.helpers.device_registry import format_mac
 from homeassistant.helpers.selector import selector
 from pyextron import AuthenticationError, DeviceType, ExtronDevice
 
-from .const import CONF_DEVICE_TYPE, CONF_HOST, CONF_PASSWORD, CONF_PORT, DOMAIN, OPTION_INPUT_NAMES
+from .const import (
+    CONF_DEVICE_TYPE,
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_PORT,
+    DOMAIN,
+    EXTRON_DEVICE_TIMEOUT_SECONDS,
+    OPTION_INPUT_NAMES,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,7 +53,12 @@ class ExtronConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 # Try to connect to the device
-                extron_device = ExtronDevice(user_input["host"], user_input["port"], user_input["password"])
+                extron_device = ExtronDevice(
+                    user_input["host"],
+                    user_input["port"],
+                    user_input["password"],
+                    timeout=EXTRON_DEVICE_TIMEOUT_SECONDS,
+                )
                 await extron_device.connect()
 
                 # Make a title for the entry

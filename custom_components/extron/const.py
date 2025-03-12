@@ -11,5 +11,7 @@ CONF_DEVICE_TYPE = "device_type"
 
 OPTION_INPUT_NAMES = "input_names"
 
+EXTRON_DEVICE_TIMEOUT_SECONDS = 10
+
 # Poll entities every 30 seconds
 SCAN_INTERVAL = timedelta(minutes=30)
