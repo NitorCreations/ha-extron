@@ -29,6 +29,11 @@ Not every single feature can be controlled, only the basics:
 
 The communication is done using Python's `asyncio` and requires no external libraries.
 
+## Caveats
+
+* SSP 200 surround sound processors seem to stop responding properly (both to commands and to physical interactions 
+  like button presses) after some time, requiring a reboot 
+
 ## Development
 
 Developing the integration and testing it locally in Home Assistant are two separate tasks.
