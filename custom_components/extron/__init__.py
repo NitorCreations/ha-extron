@@ -11,7 +11,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.device_registry import DeviceInfo, format_mac
 from pyextron import AuthenticationError, ExtronDevice
 
-from custom_components.extron.const import OPTION_INPUT_NAMES
+from custom_components.extron.const import EXTRON_DEVICE_TIMEOUT_SECONDS, OPTION_INPUT_NAMES
 
 PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.SENSOR, Platform.BUTTON]
 _LOGGER = logging.getLogger(__name__)
@@ -56,7 +56,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Extron from a config entry."""
     # Verify we can connect to the device
     try:
-        device = ExtronDevice(entry.data["host"], entry.data["port"], entry.data["password"])
+        device = ExtronDevice(
+            entry.data["host"], entry.data["port"], entry.data["password"], timeout=EXTRON_DEVICE_TIMEOUT_SECONDS
+        )
         await device.connect()
         await device.disconnect()
     except AuthenticationError as e:
