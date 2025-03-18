@@ -35,7 +35,7 @@ async def get_device_information(device: ExtronDevice) -> DeviceInformation:
     async with device.connection():
         mac_address = await device.query_mac_address()
         model_name = await device.query_model_name()
-        firmware_version = await device.query_firmware_version()
+        firmware_version = await device.run_command("*Q")
         part_number = await device.query_part_number()
         ip_address = await device.query_ip_address()
 
