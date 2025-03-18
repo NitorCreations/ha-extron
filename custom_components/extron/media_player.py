@@ -12,6 +12,7 @@ from homeassistant.components.media_player import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from pyextron import DeviceType, ExtronDevice, HDMISwitcher, SurroundSoundProcessor
 
 from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntimeData
@@ -27,7 +28,7 @@ def make_source_bidict(num_sources: int, input_names: list[str]) -> bidict:
     return bidict({i + 1: input_names[i] if i < len(input_names) else str(i + 1) for i in range(num_sources)})
 
 
-async def async_setup_entry(_hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
+async def async_setup_entry(_hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     # Extract stored runtime data from the entry
     runtime_data: ExtronConfigEntryRuntimeData = entry.runtime_data
     device = runtime_data.device
@@ -37,10 +38,10 @@ async def async_setup_entry(_hass: HomeAssistant, entry: ConfigEntry, async_add_
     # Add entities
     if entry.data[CONF_DEVICE_TYPE] == DeviceType.SURROUND_SOUND_PROCESSOR.value:
         ssp = SurroundSoundProcessor(device)
-        async_add_entities([ExtronSurroundSoundProcessor(ssp, device_information, input_names)])
+        async_add_entities([ExtronSurroundSoundProcessor(ssp, device_information, input_names)], update_before_add=True)
     elif entry.data[CONF_DEVICE_TYPE] == DeviceType.HDMI_SWITCHER.value:
         hdmi_switcher = HDMISwitcher(device)
-        async_add_entities([ExtronHDMISwitcher(hdmi_switcher, device_information, input_names)])
+        async_add_entities([ExtronHDMISwitcher(hdmi_switcher, device_information, input_names)], update_before_add=True)
 
 
 class AbstractExtronMediaPlayerEntity(MediaPlayerEntity):
