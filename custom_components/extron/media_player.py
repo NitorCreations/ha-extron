@@ -1,5 +1,7 @@
 import logging
 
+from datetime import timedelta
+
 from bidict import bidict
 from homeassistant.components.media_player import (
     MediaPlayerDeviceClass,
@@ -16,6 +18,8 @@ from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntime
 from custom_components.extron.const import CONF_DEVICE_TYPE
 
 logger = logging.getLogger(__name__)
+
+SCAN_INTERVAL = timedelta(seconds=30)
 
 
 def make_source_bidict(num_sources: int, input_names: list[str]) -> bidict:

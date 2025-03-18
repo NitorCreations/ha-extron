@@ -1,6 +1,6 @@
 import logging
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
@@ -13,6 +13,8 @@ from custom_components.extron import DeviceInformation, ExtronConfigEntryRuntime
 from custom_components.extron.const import CONF_DEVICE_TYPE
 
 logger = logging.getLogger(__name__)
+
+SCAN_INTERVAL = timedelta(seconds=60)
 
 
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
