@@ -1,6 +1,6 @@
 [project]
 name = "ha-extron"
-version = "0.3.1"
+version = "0.3.2"
 description = "Home Assistant integration for Extron switchers and audio processors"
 readme = "README.md"
 license = {file = "LICENSE"}
