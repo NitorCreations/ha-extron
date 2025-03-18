@@ -1,11 +1,12 @@
 import logging
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from pyextron import DeviceType, SurroundSoundProcessor
 
@@ -14,8 +15,10 @@ from custom_components.extron.const import CONF_DEVICE_TYPE
 
 logger = logging.getLogger(__name__)
 
+SCAN_INTERVAL = timedelta(seconds=60)
 
-async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
+
+async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     # Extract stored runtime data from the entry
     runtime_data: ExtronConfigEntryRuntimeData = entry.runtime_data
     device = runtime_data.device
@@ -24,7 +27,7 @@ async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
     # Add entities
     if entry.data[CONF_DEVICE_TYPE] == DeviceType.SURROUND_SOUND_PROCESSOR.value:
         ssp = SurroundSoundProcessor(device)
-        async_add_entities([ExtronDeviceTemperature(ssp, device_information)])
+        async_add_entities([ExtronDeviceTemperature(ssp, device_information)], update_before_add=True)
 
 
 class ExtronDeviceTemperature(SensorEntity):
