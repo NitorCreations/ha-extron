@@ -39,7 +39,7 @@ The communication is done using Python's `asyncio` and requires no external libr
 Developing the integration and testing it locally in Home Assistant are two separate tasks.
 
 For development, create a virtual environment (either manually or in an IDE like PyCharm), then install the 
-dependencies using `pip install .`.
+dependencies using `pip install -e .`.
 
 Running the integration involves setting up a Home Assistant development environment and making the integration 
 available to it:
