@@ -13,7 +13,7 @@ from pyextron import AuthenticationError, ExtronDevice
 
 from custom_components.extron.const import EXTRON_DEVICE_TIMEOUT_SECONDS, OPTION_INPUT_NAMES
 
-PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.SENSOR, Platform.BUTTON]
+PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.SENSOR, Platform.BUTTON, Platform.BINARY_SENSOR]
 _LOGGER = logging.getLogger(__name__)
 
 
