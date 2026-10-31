@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from datetime import timedelta
@@ -20,6 +21,7 @@ from custom_components.extron.const import CONF_DEVICE_TYPE
 
 logger = logging.getLogger(__name__)
 
+# Don't poll more often than this, the SSP has been seen to lock up when polled frequently (see #24)
 SCAN_INTERVAL = timedelta(seconds=30)
 
 
@@ -89,6 +91,10 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
         self._volume = None
         self._muted = False
 
+        # Volume level (0-100) that has been requested but not yet written to the device, and the task writing it
+        self._pending_volume: int | None = None
+        self._volume_writer: asyncio.Task | None = None
+
     _attr_supported_features = (
         MediaPlayerEntityFeature.SELECT_SOURCE
         | MediaPlayerEntityFeature.VOLUME_MUTE
@@ -105,7 +111,9 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
                 self._source = self._source_bidict.get(await self._ssp.view_input())
                 self._muted = await self._ssp.is_muted()
                 volume = await self._ssp.get_volume_level()
-                self._volume = volume / 100
+                # Don't overwrite the optimistic volume with a stale one if a newer level is waiting to be written
+                if self._pending_volume is None:
+                    self._volume = volume / 100
         except Exception:
             logger.exception("An error occurred while trying to update entity state")
             self._attr_available = False
@@ -144,8 +152,32 @@ class ExtronSurroundSoundProcessor(AbstractExtronMediaPlayerEntity):
             await self._ssp.mute() if mute else await self._ssp.unmute()
 
     async def async_set_volume_level(self, volume: float) -> None:
-        async with self._ssp._device.connection():
-            await self._ssp.set_volume_level(int(volume * 100))
+        # Sliders can call this for every step they're dragged across. Instead of opening a connection for each call
+        # and running them one by one (which takes a long time to catch up), only remember the latest requested level
+        # and let a single writer task send it, over one connection, until it has caught up.
+        self._pending_volume = round(volume * 100)
+        self._volume = self._pending_volume / 100
+        self.async_write_ha_state()
+
+        if self._volume_writer is None or self._volume_writer.done():
+            self._volume_writer = self.hass.async_create_task(self._write_pending_volume())
+
+        await asyncio.shield(self._volume_writer)
+
+    async def _write_pending_volume(self) -> None:
+        try:
+            # The outer loop catches levels requested while the connection was being closed
+            while self._pending_volume is not None:
+                async with self._ssp._device.connection():
+                    while (level := self._pending_volume) is not None:
+                        await self._ssp.set_volume_level(level)
+
+                        # Done unless a new level was requested while we were busy
+                        if self._pending_volume == level:
+                            self._pending_volume = None
+        except Exception:
+            self._pending_volume = None
+            raise
 
     async def async_volume_up(self) -> None:
         async with self._ssp._device.connection():
