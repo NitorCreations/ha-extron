@@ -59,8 +59,13 @@ Repeat this for any other integrations you want to make available in your local 
 
 ### Tests
 
+The tests run the integration in Home Assistant against a fake Extron device (`tests/fake_extron.py`). Install the
+test dependencies into a virtual environment (Python 3.13 or newer, but don't install the integration itself) and run
+`pytest`:
+
 ```bash
-python3 -m unittest discover -s tests/ -v
+pip install -r requirements_test.txt
+python3 -m pytest -v
 ```
 
 ### Making a new release
